@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install deps
+COPY package.json package-lock.json* ./
+RUN npm install
+
+# Copy source
+COPY . .
+
+# Expose API port
+EXPOSE 3000
+
+# Dev environment
+ENV NODE_ENV=development
+
+# Hot reload (tsx / nodemon)
+CMD ["npm", "run", "dev"]

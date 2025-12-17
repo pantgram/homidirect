@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1760975539323,
+      "tag": "0000_wooden_power_pack",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765044540966,
+      "tag": "0001_add_new_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765227971853,
+      "tag": "0002_add_join_tables",
+      "breakpoints": true
+    }
+  ]
+}
