@@ -22,7 +22,7 @@
     "db:studio": "pnpm --filter @homidirect/api db:studio"
   },
   "devDependencies": {
-    "turbo": "^1.11.0",
+    "turbo": "^2.6.3",
     "typescript": "^5.3.3"
   },
   "engines": {
