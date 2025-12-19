@@ -26,9 +26,15 @@ export const AuthService = {
       })
       .returning();
 
-    const accessToken = signToken({ id: user.id, email: user.email }, "15M");
+    const accessToken = signToken(
+      { id: user.id, email: user.email, role: user.role },
+      "15M"
+    );
 
-    const refreshToken = signToken({ id: user.id, email: user.email }, "7D");
+    const refreshToken = signToken(
+      { id: user.id, email: user.email, role: user.role },
+      "7D"
+    );
     return { accessToken, refreshToken };
   },
 
@@ -39,8 +45,14 @@ export const AuthService = {
     const valid = await comparePasswords(password, user.password);
     if (!valid) throw new Error("Invalid credentials");
 
-    const accessToken = signToken({ id: user.id, email: user.email }, "15M");
-    const refreshToken = signToken({ id: user.id, email: user.email }, "7D");
+    const accessToken = signToken(
+      { id: user.id, email: user.email, role: user.role },
+      "15M"
+    );
+    const refreshToken = signToken(
+      { id: user.id, email: user.email, role: user.role },
+      "7D"
+    );
     return { accessToken, refreshToken };
   },
 

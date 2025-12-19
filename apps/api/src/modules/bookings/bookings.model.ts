@@ -23,7 +23,7 @@ export const bookings = pgTable("bookings", {
   meetLink: varchar("meet_link", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
 
-  tenantId: integer("tenant_id")
+  candidateId: integer("candidate_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 

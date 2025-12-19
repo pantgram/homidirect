@@ -19,7 +19,9 @@
     "docker": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "db:push": "pnpm --filter @homidirect/api db:push",
-    "db:studio": "pnpm --filter @homidirect/api db:studio"
+    "db:studio": "pnpm --filter @homidirect/api db:studio",
+    "db:generate": "pnpm --filter @homidirect/api db:generate",
+    "db:migrate": "pnpm --filter @homidirect/api db:migrate"
   },
   "devDependencies": {
     "turbo": "^2.6.3",

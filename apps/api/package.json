@@ -12,7 +12,8 @@
     "clean": "rm -rf dist node_modules .turbo",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@homidirect/shared": "workspace:*",

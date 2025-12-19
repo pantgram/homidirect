@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import { config } from "./config/env";
-import { apiRoutes } from "./modules/api";
+import { apiRoutes } from "./modules/index";
 import jwtPlugin from "./plugins/jwt";
 
 export function buildApp() {
