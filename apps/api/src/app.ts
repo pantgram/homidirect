@@ -1,22 +1,39 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 import { config } from "./config/env";
 import { apiRoutes } from "./modules/index";
 import jwtPlugin from "./plugins/jwt";
+import { errorHandler } from "./middleware/errorHandler";
 
 export function buildApp() {
   const fastify = Fastify({
-    routerOptions: { caseSensitive: false },
+    routerOptions: { caseSensitive: false, ignoreTrailingSlash: true },
     logger: {
       level: config.nodeEnv === "development" ? "info" : "error",
     },
   });
 
-  // Register plugins
+  // Register security plugins
   fastify.register(cors);
   fastify.register(helmet);
+
+  // Register rate limiting (global defaults)
+  fastify.register(rateLimit, {
+    max: 100, // max requests per time window
+    timeWindow: "15 minutes", // time window
+    cache: 10000, // cache size for tracking IPs
+    allowList: config.nodeEnv === "development" ? ["127.0.0.1"] : [], // whitelist localhost in development
+    skipOnError: false,
+  });
+
+  // Register JWT plugin
   fastify.register(jwtPlugin);
+
+  // Register global error handler
+  fastify.setErrorHandler(errorHandler);
+
   // Health check
   fastify.get("/health", async () => {
     return { status: "ok", timestamp: new Date().toISOString() };

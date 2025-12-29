@@ -4,5 +4,5 @@ export interface LoginInput {
 }
 
 export interface RefreshInput {
-  token: string;
+  refreshToken: string;
 }

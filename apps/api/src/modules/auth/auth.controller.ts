@@ -2,6 +2,11 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "./auth.service";
 import { NewUser } from "../users/users.model";
 import { LoginInput, RefreshInput } from "./auth.types";
+import {
+  ConflictError,
+  UnauthorizedError,
+  InternalServerError,
+} from "@/utils/errors";
 
 export const AuthController = {
   async register(req: FastifyRequest<{ Body: NewUser }>, reply: FastifyReply) {
@@ -10,9 +15,10 @@ export const AuthController = {
       return reply.status(201).send(data);
     } catch (err: any) {
       req.log.error(err);
-      return reply
-        .status(400)
-        .send({ message: err.message || "Registration failed" });
+      if (err.message === "Email already registered") {
+        throw new ConflictError("Email already registered");
+      }
+      throw new InternalServerError("Registration failed");
     }
   },
 
@@ -22,9 +28,10 @@ export const AuthController = {
       return reply.send({ token });
     } catch (err: any) {
       req.log.error(err);
-      return reply
-        .status(401)
-        .send({ message: err.message || "Invalid credentials" });
+      if (err.message === "Invalid credentials") {
+        throw new UnauthorizedError("Invalid email or password");
+      }
+      throw new InternalServerError("Login failed");
     }
   },
 
@@ -37,16 +44,7 @@ export const AuthController = {
       return reply.send({ tokens });
     } catch (err: any) {
       req.log.error(err);
-      return reply
-        .status(401)
-        .send({ message: err.message || "Invalid refresh token" });
+      throw new UnauthorizedError("Invalid or expired refresh token");
     }
-  },
-
-  async me(req: FastifyRequest, reply: FastifyReply) {
-    if (!req.user) {
-      return reply.status(401).send({ message: "Not authenticated" });
-    }
-    return reply.send({ user: req.user });
   },
 };

@@ -56,17 +56,15 @@ export const AuthService = {
     return { accessToken, refreshToken };
   },
 
-  async refresh({ token }: RefreshInput, fastify: FastifyInstance) {
-    console.log("Refresh token received:", token);
-    const payload = fastify.jwt.verify(token);
-    console.log("Payload:", payload);
+  async refresh({ refreshToken }: RefreshInput, fastify: FastifyInstance) {
+    const payload = fastify.jwt.verify(refreshToken) as any;
     const newAccessToken = fastify.jwt.sign(
-      { id: payload },
+      { id: payload.id, email: payload.email, role: payload.role },
       { expiresIn: "15m" }
     );
     const newRefreshToken = fastify.jwt.sign(
-      { id: payload },
-      { expiresIn: "7D" }
+      { id: payload.id, email: payload.email, role: payload.role },
+      { expiresIn: "7d" }
     );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   },

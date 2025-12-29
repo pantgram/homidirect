@@ -32,7 +32,7 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
 // for clarity, and associating each booking with a specific listing.
 export const bookingsRelations = relations(bookings, ({ one }) => ({
   tenant: one(users, {
-    fields: [bookings.tenantId],
+    fields: [bookings.candidateId],
     references: [users.id],
     relationName: "tenant",
   }),

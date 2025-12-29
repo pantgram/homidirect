@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "config/db";
-import { bookings, NewBooking } from "./bookings.model";
+import { bookings } from "./bookings.model";
 import {
   CreateBookingDTO,
   UpdateBookingDTO,
@@ -16,7 +16,7 @@ export const BookingService = {
         scheduledAt: bookings.scheduledAt,
         meetLink: bookings.meetLink,
         createdAt: bookings.createdAt,
-        tenantId: bookings.tenantId,
+        candidateId: bookings.candidateId,
         landlordId: bookings.landlordId,
         listingId: bookings.listingId,
       })
@@ -33,7 +33,7 @@ export const BookingService = {
         scheduledAt: bookings.scheduledAt,
         meetLink: bookings.meetLink,
         createdAt: bookings.createdAt,
-        tenantId: bookings.tenantId,
+        candidateId: bookings.candidateId,
         landlordId: bookings.landlordId,
         listingId: bookings.listingId,
       })
@@ -51,7 +51,7 @@ export const BookingService = {
       scheduledAt: bookings.scheduledAt,
       meetLink: bookings.meetLink,
       createdAt: bookings.createdAt,
-      tenantId: bookings.tenantId,
+      candidateId: bookings.candidateId,
       landlordId: bookings.landlordId,
       listingId: bookings.listingId,
     });
@@ -73,7 +73,7 @@ export const BookingService = {
         scheduledAt: bookings.scheduledAt,
         meetLink: bookings.meetLink,
         createdAt: bookings.createdAt,
-        tenantId: bookings.tenantId,
+        candidateId: bookings.candidateId,
         landlordId: bookings.landlordId,
         listingId: bookings.listingId,
       });

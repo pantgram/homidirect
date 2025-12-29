@@ -1,26 +1,50 @@
 import { FastifyInstance } from "fastify";
 import { ListingController } from "./listings.controller";
 import { requireRole, verifyListingOwnership, verifyListingCreation } from "@/middleware/authorization";
+import { validateBody, validateParams } from "@/plugins/validator";
+import {
+  createListingSchema,
+  updateListingSchema,
+  listingIdParamSchema,
+} from "@/schemas/listing.schema";
 
 export async function listingRoutes(fastify: FastifyInstance) {
   // Get all listings - public (anyone can browse)
   fastify.get("", ListingController.getAll);
 
   // Get listing by ID - public (anyone can view)
-  fastify.get("/:id", ListingController.getById);
+  fastify.get<{ Params: { id: string } }>("/:id", {
+    preValidation: [validateParams(listingIdParamSchema)]
+  }, ListingController.getById);
 
   // Create listing - only landlords, and only for themselves
   fastify.post("", {
-    preValidation: [fastify.authenticate, requireRole("LANDLORD"), verifyListingCreation]
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateBody(createListingSchema),
+      verifyListingCreation
+    ]
   }, ListingController.create as any);
 
   // Update listing - only the landlord who owns it
   fastify.patch<{ Params: { id: string } }>("/:id", {
-    preValidation: [fastify.authenticate, requireRole("LANDLORD"), verifyListingOwnership]
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateParams(listingIdParamSchema),
+      validateBody(updateListingSchema),
+      verifyListingOwnership
+    ]
   }, ListingController.update as any);
 
   // Delete listing - only the landlord who owns it
   fastify.delete<{ Params: { id: string } }>("/:id", {
-    preValidation: [fastify.authenticate, requireRole("LANDLORD"), verifyListingOwnership]
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateParams(listingIdParamSchema),
+      verifyListingOwnership
+    ]
   }, ListingController.delete as any);
 }
