@@ -4,8 +4,8 @@ import { bookings } from "../modules/bookings/bookings.model";
 import { listingImages } from "../modules/listingImages/listingImages.model";
 import { listings } from "../modules/listings/listings.model";
 import { tags } from "../modules/tags/tags.model";
-import { interestedListings } from "../schema/interestedListings.model";
-import { listingTags } from "../schema/listingTags.model";
+import { interestedListings } from "../models/interestedListings.model";
+import { listingTags } from "../models/listingTags.model";
 import {
   usersRelations,
   listingsRelations,

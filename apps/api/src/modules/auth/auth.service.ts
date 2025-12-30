@@ -2,12 +2,14 @@ import { db } from "config/db";
 import { NewUser, users } from "@/modules/users/users.model";
 import { eq } from "drizzle-orm";
 import { hashPassword, comparePasswords } from "utils/hash";
-import { signToken } from "utils/jwt";
 import { FastifyInstance } from "fastify";
 
 import { LoginInput, RefreshInput } from "./auth.types";
 export const AuthService = {
-  async register({ email, password, firstName, lastName, role }: NewUser) {
+  async register(
+    { email, password, firstName, lastName, role }: NewUser,
+    fastify: FastifyInstance
+  ) {
     const [existing] = await db
       .select()
       .from(users)
@@ -26,32 +28,39 @@ export const AuthService = {
       })
       .returning();
 
-    const accessToken = signToken(
+    const accessToken = fastify.jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      "15M"
+      { expiresIn: "15m" }
     );
-
-    const refreshToken = signToken(
+    const refreshToken = fastify.jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      "7D"
+      { expiresIn: "7d" }
     );
     return { accessToken, refreshToken };
   },
 
-  async login({ email, password }: LoginInput) {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+  async login({ email, password }: LoginInput, fastify: FastifyInstance) {
+    const [user] = await db
+      .select({
+        email: users.email,
+        id: users.id,
+        role: users.role,
+        password: users.password,
+      })
+      .from(users)
+      .where(eq(users.email, email));
     if (!user) throw new Error("Invalid credentials");
 
     const valid = await comparePasswords(password, user.password);
     if (!valid) throw new Error("Invalid credentials");
 
-    const accessToken = signToken(
+    const accessToken = fastify.jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      "15M"
+      { expiresIn: "15m" }
     );
-    const refreshToken = signToken(
+    const refreshToken = fastify.jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      "7D"
+      { expiresIn: "7d" }
     );
     return { accessToken, refreshToken };
   },

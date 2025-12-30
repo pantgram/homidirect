@@ -16,7 +16,7 @@ export default fp(async (app) => {
         (request as any).user = {
           id: (payload as any).id,
           email: (payload as any).email,
-          role: (payload as any).role
+          role: (payload as any).role,
         };
       } catch {
         reply.code(401).send({ message: "Unauthorized" });

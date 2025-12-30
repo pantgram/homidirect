@@ -11,7 +11,7 @@ import {
 export const AuthController = {
   async register(req: FastifyRequest<{ Body: NewUser }>, reply: FastifyReply) {
     try {
-      const data = await AuthService.register(req.body);
+      const data = await AuthService.register(req.body, req.server);
       return reply.status(201).send(data);
     } catch (err: any) {
       req.log.error(err);
@@ -24,7 +24,7 @@ export const AuthController = {
 
   async login(req: FastifyRequest<{ Body: LoginInput }>, reply: FastifyReply) {
     try {
-      const token = await AuthService.login(req.body);
+      const token = await AuthService.login(req.body, req.server);
       return reply.send({ token });
     } catch (err: any) {
       req.log.error(err);
