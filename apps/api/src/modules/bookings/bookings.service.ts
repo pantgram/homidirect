@@ -45,6 +45,8 @@ export const BookingService = {
   },
 
   async createBooking(data: CreateBookingDTO): Promise<BookingResponse> {
+    data.scheduledAt = new Date(data.scheduledAt);
+    console.log(data);
     const [newBooking] = await db.insert(bookings).values(data).returning({
       id: bookings.id,
       status: bookings.status,

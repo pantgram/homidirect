@@ -6,7 +6,7 @@ import { NotFoundError } from "@/utils/errors";
 export const BookingController = {
   async getAll(request: FastifyRequest, reply: FastifyReply) {
     const bookings = await BookingService.getAllBookings();
-    return reply.code(200).send({ data: bookings });
+    return reply.code(200).send({ bookings: bookings });
   },
 
   async getById(
@@ -20,7 +20,7 @@ export const BookingController = {
       throw new NotFoundError("Booking not found");
     }
 
-    return reply.code(200).send({ data: booking });
+    return reply.code(200).send({ booking: booking });
   },
 
   async create(
@@ -28,7 +28,7 @@ export const BookingController = {
     reply: FastifyReply
   ) {
     const booking = await BookingService.createBooking(request.body);
-    return reply.code(201).send({ data: booking });
+    return reply.code(201).send({ booking: booking });
   },
 
   async update(
@@ -42,7 +42,7 @@ export const BookingController = {
       throw new NotFoundError("Booking not found");
     }
 
-    return reply.code(200).send({ data: booking });
+    return reply.code(200).send({ booking: booking });
   },
 
   async delete(

@@ -15,7 +15,7 @@ export const UserController = {
       throw new NotFoundError("User not found");
     }
 
-    return reply.code(200).send({ data: user });
+    return reply.code(200).send({ user: user });
   },
 
   async update(
@@ -29,7 +29,7 @@ export const UserController = {
       throw new NotFoundError("User not found");
     }
 
-    return reply.code(200).send({ data: user });
+    return reply.code(200).send({ user: user });
   },
 
   async delete(

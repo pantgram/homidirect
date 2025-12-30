@@ -6,7 +6,7 @@ import { NotFoundError } from "@/utils/errors";
 export const ListingController = {
   async getAll(request: FastifyRequest, reply: FastifyReply) {
     const listings = await ListingService.getAllListings();
-    return reply.code(200).send({ data: listings });
+    return reply.code(200).send({ listings: listings });
   },
 
   async getById(
@@ -20,7 +20,7 @@ export const ListingController = {
       throw new NotFoundError("Listing not found");
     }
 
-    return reply.code(200).send({ data: listing });
+    return reply.code(200).send({ listing: listing });
   },
 
   async create(
@@ -28,7 +28,7 @@ export const ListingController = {
     reply: FastifyReply
   ) {
     const listing = await ListingService.createListing(request.body);
-    return reply.code(201).send({ data: listing });
+    return reply.code(201).send({ listing: listing });
   },
 
   async update(
@@ -42,7 +42,7 @@ export const ListingController = {
       throw new NotFoundError("Listing not found");
     }
 
-    return reply.code(200).send({ data: listing });
+    return reply.code(200).send({ listing: listing });
   },
 
   async delete(

@@ -2,10 +2,12 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
 import { config } from "./config/env";
 import { apiRoutes } from "./modules/index";
 import jwtPlugin from "./plugins/jwt";
 import { errorHandler } from "./middleware/errorHandler";
+import { MAX_FILE_SIZE } from "./modules/listingImages/listingImages.types";
 
 export function buildApp() {
   const fastify = Fastify({
@@ -18,6 +20,13 @@ export function buildApp() {
   // Register security plugins
   fastify.register(cors);
   fastify.register(helmet);
+
+  // Register multipart for file uploads
+  fastify.register(multipart, {
+    limits: {
+      fileSize: MAX_FILE_SIZE,
+    },
+  });
 
   // Register rate limiting (global defaults)
   fastify.register(rateLimit, {

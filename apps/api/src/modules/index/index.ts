@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { authRoutes } from "../auth/auth.routes";
 import { userRoutes } from "../users/users.routes";
 import { listingRoutes } from "../listings/listings.routes";
+import { listingImageRoutes } from "../listingImages/listingImages.routes";
 import { bookingRoutes } from "../bookings/bookings.routes";
 import { tagRoutes } from "../tags/tags.routes";
 
@@ -14,6 +15,9 @@ export async function apiRoutes(fastify: FastifyInstance) {
 
   // all listing routes will be under /api/listings
   fastify.register(listingRoutes, { prefix: "/listings" });
+
+  // listing image routes under /api/listings/:listingId/images
+  fastify.register(listingImageRoutes, { prefix: "/listings" });
 
   // all booking routes will be under /api/bookings
   fastify.register(bookingRoutes, { prefix: "/bookings" });
