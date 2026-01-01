@@ -5,7 +5,13 @@ import PropertyCard from "@/components/PropertyCard";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -87,7 +93,7 @@ const SearchResults = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Search Bar */}
         <div className="bg-card rounded-lg shadow-card p-6 mb-8">
@@ -100,8 +106,8 @@ const SearchResults = () => {
                 defaultValue="Downtown"
               />
             </div>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowFilters(!showFilters)}
               className="md:w-auto"
             >
@@ -124,12 +130,22 @@ const SearchResults = () => {
                       <SelectValue placeholder={t("common.selectType")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">{t("search.allTypes")}</SelectItem>
-                      <SelectItem value="apartment">{t("search.apartment")}</SelectItem>
+                      <SelectItem value="all">
+                        {t("search.allTypes")}
+                      </SelectItem>
+                      <SelectItem value="apartment">
+                        {t("search.apartment")}
+                      </SelectItem>
                       <SelectItem value="house">{t("search.house")}</SelectItem>
-                      <SelectItem value="studio">{t("search.studio")}</SelectItem>
-                      <SelectItem value="penthouse">{t("search.penthouse")}</SelectItem>
-                      <SelectItem value="townhouse">{t("search.townhouse")}</SelectItem>
+                      <SelectItem value="studio">
+                        {t("search.studio")}
+                      </SelectItem>
+                      <SelectItem value="penthouse">
+                        {t("search.penthouse")}
+                      </SelectItem>
+                      <SelectItem value="townhouse">
+                        {t("search.townhouse")}
+                      </SelectItem>
                       <SelectItem value="loft">{t("search.loft")}</SelectItem>
                     </SelectContent>
                   </Select>
@@ -195,7 +211,9 @@ const SearchResults = () => {
               {t("search.results")}
             </h1>
             <p className="text-muted-foreground">
-              {t("search.foundProperties").replace("{count}", properties.length.toString()).replace("{location}", "Downtown")}
+              {t("search.foundProperties")
+                .replace("{count}", properties.length.toString())
+                .replace("{location}", "Downtown")}
             </p>
           </div>
           <Select defaultValue="featured">
@@ -203,9 +221,15 @@ const SearchResults = () => {
               <SelectValue placeholder={t("search.sortBy")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="featured">{t("search.featuredFirst")}</SelectItem>
-              <SelectItem value="price-low">{t("search.priceLowToHigh")}</SelectItem>
-              <SelectItem value="price-high">{t("search.priceHighToLow")}</SelectItem>
+              <SelectItem value="featured">
+                {t("search.featuredFirst")}
+              </SelectItem>
+              <SelectItem value="price-low">
+                {t("search.priceLowToHigh")}
+              </SelectItem>
+              <SelectItem value="price-high">
+                {t("search.priceHighToLow")}
+              </SelectItem>
               <SelectItem value="newest">{t("search.newestFirst")}</SelectItem>
             </SelectContent>
           </Select>

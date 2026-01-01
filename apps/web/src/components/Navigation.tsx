@@ -4,10 +4,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserMenuDropdown } from "@/components/layout/UserMenuDropdown";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useLanguage();
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -41,9 +44,15 @@ const Navigation = () => {
               {t("nav.howItWorks")}
             </Link>
             <LanguageSelector />
-            <Link to="/auth">
-              <Button variant="hero">{t("nav.signIn")}</Button>
-            </Link>
+            {isLoading ? (
+              <div className="h-8 w-8 animate-pulse bg-muted rounded-full" />
+            ) : isAuthenticated ? (
+              <UserMenuDropdown />
+            ) : (
+              <Link to="/auth">
+                <Button variant="hero">{t("nav.signIn")}</Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -81,11 +90,17 @@ const Navigation = () => {
               <LanguageSelector />
             </div>
             <div className="flex flex-col gap-2 pt-2">
-              <Link to="/auth">
-                <Button variant="hero" className="w-full">
-                  {t("nav.signIn")}
-                </Button>
-              </Link>
+              {isLoading ? (
+                <div className="h-10 w-full animate-pulse bg-muted rounded" />
+              ) : isAuthenticated ? (
+                <UserMenuDropdown />
+              ) : (
+                <Link to="/auth">
+                  <Button variant="hero" className="w-full">
+                    {t("nav.signIn")}
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         )}

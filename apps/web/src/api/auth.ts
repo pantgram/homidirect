@@ -45,6 +45,10 @@ export const authApi = {
     return response.data;
   },
 
+  getCurrentUser(): Promise<User> {
+    return this.getMe();
+  },
+
   logout(): void {
     tokenStorage.clearTokens();
   },

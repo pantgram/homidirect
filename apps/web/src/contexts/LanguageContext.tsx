@@ -57,6 +57,18 @@ export const translations = {
     "auth.roleRequired": "Role required",
     "auth.roleRequiredMsg":
       "Please select at least one role (Tenant or Property Owner)",
+    "auth.error": "Error",
+    "auth.loginFailed": "Login failed. Please check your credentials.",
+    "auth.signupFailed": "Registration failed. Please try again.",
+    "auth.passwordMismatch": "Passwords do not match",
+    "auth.passwordTooShort": "Password must be at least 8 characters",
+
+    // User Menu
+    "userMenu.myListings": "My Listings",
+    "userMenu.favorites": "Favorites",
+    "userMenu.profile": "Profile",
+    "userMenu.settings": "Settings",
+    "userMenu.logout": "Log out",
 
     // List Property Info
     "listInfo.title": "List Your Property on HomiDirect",
@@ -412,6 +424,18 @@ export const translations = {
     "auth.roleRequired": "Απαιτείται ρόλος",
     "auth.roleRequiredMsg":
       "Παρακαλώ επιλέξτε τουλάχιστον έναν ρόλο (Ενοικιαστής ή Ιδιοκτήτης Ακινήτου)",
+    "auth.error": "Σφάλμα",
+    "auth.loginFailed": "Η σύνδεση απέτυχε. Ελέγξτε τα στοιχεία σας.",
+    "auth.signupFailed": "Η εγγραφή απέτυχε. Δοκιμάστε ξανά.",
+    "auth.passwordMismatch": "Οι κωδικοί δεν ταιριάζουν",
+    "auth.passwordTooShort": "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες",
+
+    // User Menu
+    "userMenu.myListings": "Οι Καταχωρήσεις μου",
+    "userMenu.favorites": "Αγαπημένα",
+    "userMenu.profile": "Προφίλ",
+    "userMenu.settings": "Ρυθμίσεις",
+    "userMenu.logout": "Αποσύνδεση",
 
     // List Property Info
     "listInfo.title": "Καταχωρήστε το Ακίνητό σας στο HomiDirect",

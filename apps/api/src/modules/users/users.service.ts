@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "config/db";
 import { users, NewUser } from "./users.model";
-import { UpdateUser, UserResponse } from "./users.types";
+import { UpdateUser, UserResponse, UserWithRole } from "./users.types";
 
 export const UserService = {
   async getAllUsers(): Promise<UserResponse[]> {
@@ -25,6 +25,23 @@ export const UserService = {
         firstName: users.firstName,
         lastName: users.lastName,
         email: users.email,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+
+    return user || null;
+  },
+
+  async getUserWithRole(id: number): Promise<UserWithRole | null> {
+    const [user] = await db
+      .select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        role: users.role,
         createdAt: users.createdAt,
       })
       .from(users)

@@ -9,45 +9,75 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { login, register, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
-    
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      // Store login state (NOTE: This is not secure - for demo only without backend)
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
-      
+    const password = formData.get("password") as string;
+
+    try {
+      await login({ email, password });
       toast({
         title: t("auth.loginSuccess"),
         description: t("auth.welcomeBackMsg"),
       });
       navigate("/");
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: t("auth.error") || "Error",
+        description: error.response?.data?.message || t("auth.loginFailed") || "Login failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const formData = new FormData(e.currentTarget);
+    const fullName = formData.get("fullName") as string;
     const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
     const isTenant = formData.get("tenant") === "on";
     const isPropertyOwner = formData.get("propertyOwner") === "on";
-    
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setIsLoading(false);
+      toast({
+        title: t("auth.error") || "Error",
+        description: t("auth.passwordMismatch") || "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      setIsLoading(false);
+      toast({
+        title: t("auth.error") || "Error",
+        description: t("auth.passwordTooShort") || "Password must be at least 8 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!isTenant && !isPropertyOwner) {
       setIsLoading(false);
       toast({
@@ -57,23 +87,37 @@ const Auth = () => {
       });
       return;
     }
-    
-    // Simulate signup
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      // Store user data (NOTE: This is not secure - for demo only without backend)
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
-      localStorage.setItem("isTenant", String(isTenant));
-      localStorage.setItem("isPropertyOwner", String(isPropertyOwner));
-      
+
+    // Parse full name into first and last name
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
+
+    // Determine role - LANDLORD if property owner, TENANT otherwise
+    const role = isPropertyOwner ? "LANDLORD" : "TENANT";
+
+    try {
+      await register({
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
+      });
       toast({
         title: t("auth.accountCreated"),
         description: t("auth.welcomeMsg"),
       });
       navigate("/");
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: t("auth.error") || "Error",
+        description: error.response?.data?.message || t("auth.signupFailed") || "Registration failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -112,6 +156,7 @@ const Auth = () => {
                       <Label htmlFor="login-password">{t("auth.password")}</Label>
                       <Input
                         id="login-password"
+                        name="password"
                         type="password"
                         placeholder="••••••••"
                         required
@@ -139,6 +184,7 @@ const Auth = () => {
                       <Label htmlFor="signup-name">{t("auth.fullName")}</Label>
                       <Input
                         id="signup-name"
+                        name="fullName"
                         type="text"
                         placeholder="John Doe"
                         required
@@ -158,8 +204,10 @@ const Auth = () => {
                       <Label htmlFor="signup-password">{t("auth.password")}</Label>
                       <Input
                         id="signup-password"
+                        name="password"
                         type="password"
                         placeholder="••••••••"
+                        minLength={8}
                         required
                       />
                     </div>
@@ -167,8 +215,10 @@ const Auth = () => {
                       <Label htmlFor="signup-confirm">{t("auth.confirmPassword")}</Label>
                       <Input
                         id="signup-confirm"
+                        name="confirmPassword"
                         type="password"
                         placeholder="••••••••"
+                        minLength={8}
                         required
                       />
                     </div>

@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { UserService } from "./users.service";
 import { UpdateUser } from "./users.types";
 import { NotFoundError, UnauthorizedError } from "@/utils/errors";
+import { AuthenticatedRequest } from "@/middleware/authorization";
 
 export const UserController = {
   async getById(
@@ -46,10 +47,19 @@ export const UserController = {
     return reply.code(204).send();
   },
 
-  async me(req: FastifyRequest, reply: FastifyReply) {
+  async me(request: FastifyRequest, reply: FastifyReply) {
+    const req = request as AuthenticatedRequest;
     if (!req.user) {
       throw new UnauthorizedError("Not authenticated");
     }
-    return reply.send({ user: req.user });
+
+    // Fetch full user data from database instead of just JWT payload
+    const user = await UserService.getUserWithRole(req.user.id);
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    return reply.send(user);
   },
 };

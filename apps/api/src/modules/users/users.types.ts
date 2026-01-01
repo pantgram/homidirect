@@ -11,3 +11,12 @@ export interface UserResponse {
   email: string;
   createdAt: Date;
 }
+
+export interface UserWithRole {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: "LANDLORD" | "TENANT" | "ADMIN";
+  createdAt: Date;
+}

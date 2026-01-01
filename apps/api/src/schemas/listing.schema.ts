@@ -14,7 +14,7 @@ export const createListingSchema = z.object({
   title: z
     .string()
     .min(1, "Title is required")
-    .max(255, "Title must not exceed 255 characters"),
+    .max(100, "Title must not exceed 100 characters"),
   description: z.string().optional(),
   price: z.number().positive("Price must be a positive number"),
   city: z
@@ -27,7 +27,11 @@ export const createListingSchema = z.object({
     .max(20, "Postal code must not exceed 20 characters")
     .optional(),
   bedrooms: z.number().int().min(0, "Bedrooms must be 0 or greater").optional(),
-  bathrooms: z.number().int().min(0, "Bathrooms must be 0 or greater").optional(),
+  bathrooms: z
+    .number()
+    .int()
+    .min(0, "Bathrooms must be 0 or greater")
+    .optional(),
   area: z.number().positive("Area must be a positive number").optional(),
   country: z
     .string()
@@ -66,7 +70,11 @@ export const updateListingSchema = z.object({
     .max(20, "Postal code must not exceed 20 characters")
     .optional(),
   bedrooms: z.number().int().min(0, "Bedrooms must be 0 or greater").optional(),
-  bathrooms: z.number().int().min(0, "Bathrooms must be 0 or greater").optional(),
+  bathrooms: z
+    .number()
+    .int()
+    .min(0, "Bathrooms must be 0 or greater")
+    .optional(),
   area: z.number().positive("Area must be a positive number").optional(),
   country: z
     .string()
@@ -91,9 +99,7 @@ export const searchListingsSchema = z.object({
   q: z.string().max(200).optional(),
 
   // Filters
-  propertyType: z
-    .enum(["apartment", "house", "studio", "room"])
-    .optional(),
+  propertyType: z.enum(["apartment", "house", "studio", "room"]).optional(),
   city: z.string().max(100).optional(),
   region: z.string().max(100).optional(),
   country: z.string().max(100).optional(),
@@ -111,7 +117,15 @@ export const searchListingsSchema = z.object({
 
   // Sort options
   sortBy: z
-    .enum(["featured", "newest", "oldest", "price_asc", "price_desc", "area_asc", "area_desc"])
+    .enum([
+      "featured",
+      "newest",
+      "oldest",
+      "price_asc",
+      "price_desc",
+      "area_asc",
+      "area_desc",
+    ])
     .default("featured"),
 
   // Pagination

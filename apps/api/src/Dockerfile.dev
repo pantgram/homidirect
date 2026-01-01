@@ -21,7 +21,6 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy the package.json files for all workspaces
 # This is a common pattern for pnpm monorepos.
 COPY apps/api/package.json ./apps/api/
-COPY apps/landing/package.json ./apps/landing/
 COPY apps/web/package.json ./apps/web/
 COPY packages/config/package.json ./packages/config/
 COPY packages/shared/package.json ./packages/shared/

@@ -6,11 +6,9 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "pnpm --filter @homidirect/web dev",
-    "dev:landing": "pnpm --filter @homidirect/landing dev",
     "dev:api": "pnpm --filter @homidirect/api dev",
     "build": "turbo run build",
     "build:web": "pnpm --filter @homidirect/web build",
-    "build:landing": "pnpm --filter @homidirect/landing build",
     "build:api": "pnpm --filter @homidirect/api build",
     "type-check": "turbo run type-check",
     "lint": "turbo run lint",
