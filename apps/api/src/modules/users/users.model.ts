@@ -4,7 +4,6 @@ import {
   text,
   timestamp,
   varchar,
-  PgEnum,
   pgEnum,
 } from "drizzle-orm/pg-core";
 
@@ -17,6 +16,8 @@ export const users = pgTable("users", {
   role: userRoleEnum("role").notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: text("password").notNull(),
+  passwordResetToken: varchar("password_reset_token", { length: 255 }),
+  passwordResetExpires: timestamp("password_reset_expires"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

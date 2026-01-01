@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import PropertyCard from "@/components/PropertyCard";
 import Footer from "@/components/Footer";
@@ -13,82 +14,132 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
-import property1 from "@/assets/property-1.jpg";
-import property2 from "@/assets/property-2.jpg";
-import property3 from "@/assets/property-3.jpg";
-import property4 from "@/assets/property-4.jpg";
+import { listingsApi } from "@/api/listings";
+import type {
+  SearchListingsParams,
+  ListingSearchResult,
+  PropertyType,
+} from "@/api/types";
+import placeholderImage from "@/assets/property-1.jpg";
+
+const PROPERTY_TYPES = ["apartment", "house", "studio", "room"] as const;
 
 const SearchResults = () => {
   const { t } = useLanguage();
-  const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([500, 5000]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const properties = [
-    {
-      image: property1,
-      title: "Modern Downtown Apartment",
-      location: "Downtown, City Center",
-      price: "2,500",
-      bedrooms: 2,
-      bathrooms: 2,
-      area: "1,200 sq ft",
-      type: "Apartment",
-      featured: true,
+  // Initialize state from URL params
+  const [showFilters, setShowFilters] = useState(() => !!searchParams.get("type"));
+  const [priceRange, setPriceRange] = useState(() => {
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
+    return [minPrice ? parseInt(minPrice) : 500, maxPrice ? parseInt(maxPrice) : 5000];
+  });
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
+  const [propertyType, setPropertyType] = useState<PropertyType | "all">(() => {
+    const type = searchParams.get("type");
+    return type && PROPERTY_TYPES.includes(type as PropertyType) ? (type as PropertyType) : "all";
+  });
+  const [minBedrooms, setMinBedrooms] = useState<string>(() => searchParams.get("bedrooms") || "all");
+  const [minBathrooms, setMinBathrooms] = useState<string>(() => searchParams.get("bathrooms") || "all");
+  const [sortBy, setSortBy] = useState<SearchListingsParams["sortBy"]>(() => {
+    const sort = searchParams.get("sort");
+    return (sort as SearchListingsParams["sortBy"]) || "featured";
+  });
+
+  const [listings, setListings] = useState<ListingSearchResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    total: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  const fetchListings = useCallback(
+    async (page = 1) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params: SearchListingsParams = {
+          page,
+          limit: 12,
+          sortBy,
+          available: true,
+        };
+
+        if (searchQuery) params.q = searchQuery;
+        if (propertyType !== "all") params.propertyType = propertyType;
+        if (minBedrooms !== "all") params.minBedrooms = parseInt(minBedrooms);
+        if (minBathrooms !== "all")
+          params.minBathrooms = parseInt(minBathrooms);
+        if (priceRange[0] > 0) params.minPrice = priceRange[0];
+        if (priceRange[1] < 10000) params.maxPrice = priceRange[1];
+
+        const response = await listingsApi.search(params);
+        setListings(response.data);
+        setPagination({
+          page: response.pagination.page,
+          totalPages: response.pagination.totalPages,
+          total: response.pagination.total,
+          hasNextPage: response.pagination.hasNextPage,
+          hasPreviousPage: response.pagination.hasPreviousPage,
+        });
+      } catch (err) {
+        setError(t("search.errorLoading"));
+        console.error("Failed to fetch listings:", err);
+      } finally {
+        setLoading(false);
+      }
     },
-    {
-      image: property2,
-      title: "Cozy Studio Near University",
-      location: "University District",
-      price: "1,200",
-      bedrooms: 1,
-      bathrooms: 1,
-      area: "650 sq ft",
-      type: "Studio",
-    },
-    {
-      image: property3,
-      title: "Spacious Family House",
-      location: "Suburban Area",
-      price: "3,800",
-      bedrooms: 4,
-      bathrooms: 3,
-      area: "2,500 sq ft",
-      type: "House",
-      featured: true,
-    },
-    {
-      image: property4,
-      title: "Luxury Penthouse",
-      location: "Waterfront",
-      price: "5,500",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "2,000 sq ft",
-      type: "Penthouse",
-    },
-    {
-      image: property1,
-      title: "Charming Townhouse",
-      location: "Historic District",
-      price: "2,200",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "1,800 sq ft",
-      type: "Townhouse",
-    },
-    {
-      image: property2,
-      title: "Modern Loft",
-      location: "Arts District",
-      price: "2,800",
-      bedrooms: 2,
-      bathrooms: 1,
-      area: "1,400 sq ft",
-      type: "Loft",
-    },
-  ];
+    [searchQuery, propertyType, minBedrooms, minBathrooms, priceRange, sortBy, t]
+  );
+
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
+
+  const handleSearch = () => {
+    // Update URL params for shareable links
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (propertyType !== "all") params.set("type", propertyType);
+    if (minBedrooms !== "all") params.set("bedrooms", minBedrooms);
+    if (minBathrooms !== "all") params.set("bathrooms", minBathrooms);
+    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
+    if (priceRange[1] < 10000) params.set("maxPrice", priceRange[1].toString());
+    if (sortBy && sortBy !== "featured") params.set("sort", sortBy);
+    setSearchParams(params);
+
+    fetchListings(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchListings(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString();
+  };
+
+  const formatArea = (area: number) => {
+    return `${area.toLocaleString()} sq ft`;
+  };
+
+  const getPropertyTypeLabel = (type: PropertyType) => {
+    const labels: Record<PropertyType, string> = {
+      apartment: t("search.apartment"),
+      house: t("search.house"),
+      studio: t("search.studio"),
+      room: t("search.room"),
+    };
+    return labels[type] || type;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,7 +154,9 @@ const SearchResults = () => {
               <Input
                 placeholder={t("search.placeholder")}
                 className="pl-10"
-                defaultValue="Downtown"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
             <Button
@@ -114,7 +167,9 @@ const SearchResults = () => {
               <SlidersHorizontal className="h-4 w-4 mr-2" />
               {t("search.filters")}
             </Button>
-            <Button className="md:w-auto">{t("search.search")}</Button>
+            <Button className="md:w-auto" onClick={handleSearch}>
+              {t("search.search")}
+            </Button>
           </div>
 
           {/* Filters Panel */}
@@ -125,7 +180,12 @@ const SearchResults = () => {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     {t("search.propertyType")}
                   </label>
-                  <Select defaultValue="all">
+                  <Select
+                    value={propertyType}
+                    onValueChange={(value) =>
+                      setPropertyType(value as PropertyType | "all")
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t("common.selectType")} />
                     </SelectTrigger>
@@ -140,13 +200,7 @@ const SearchResults = () => {
                       <SelectItem value="studio">
                         {t("search.studio")}
                       </SelectItem>
-                      <SelectItem value="penthouse">
-                        {t("search.penthouse")}
-                      </SelectItem>
-                      <SelectItem value="townhouse">
-                        {t("search.townhouse")}
-                      </SelectItem>
-                      <SelectItem value="loft">{t("search.loft")}</SelectItem>
+                      <SelectItem value="room">{t("search.room")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -155,7 +209,10 @@ const SearchResults = () => {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     {t("search.bedrooms")}
                   </label>
-                  <Select defaultValue="all">
+                  <Select
+                    value={minBedrooms}
+                    onValueChange={setMinBedrooms}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t("search.bedrooms")} />
                     </SelectTrigger>
@@ -173,7 +230,10 @@ const SearchResults = () => {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     {t("search.bathrooms")}
                   </label>
-                  <Select defaultValue="all">
+                  <Select
+                    value={minBathrooms}
+                    onValueChange={setMinBathrooms}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder={t("search.bathrooms")} />
                     </SelectTrigger>
@@ -212,11 +272,16 @@ const SearchResults = () => {
             </h1>
             <p className="text-muted-foreground">
               {t("search.foundProperties")
-                .replace("{count}", properties.length.toString())
-                .replace("{location}", "Downtown")}
+                .replace("{count}", pagination.total.toString())
+                .replace("{location}", searchQuery || t("search.allLocations"))}
             </p>
           </div>
-          <Select defaultValue="featured">
+          <Select
+            value={sortBy}
+            onValueChange={(value) =>
+              setSortBy(value as SearchListingsParams["sortBy"])
+            }
+          >
             <SelectTrigger className="w-[200px] mt-4 sm:mt-0">
               <SelectValue placeholder={t("search.sortBy")} />
             </SelectTrigger>
@@ -224,10 +289,10 @@ const SearchResults = () => {
               <SelectItem value="featured">
                 {t("search.featuredFirst")}
               </SelectItem>
-              <SelectItem value="price-low">
+              <SelectItem value="price_asc">
                 {t("search.priceLowToHigh")}
               </SelectItem>
-              <SelectItem value="price-high">
+              <SelectItem value="price_desc">
                 {t("search.priceHighToLow")}
               </SelectItem>
               <SelectItem value="newest">{t("search.newestFirst")}</SelectItem>
@@ -235,21 +300,82 @@ const SearchResults = () => {
           </Select>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="text-center py-12">
+            <p className="text-destructive">{error}</p>
+            <Button onClick={() => fetchListings()} className="mt-4">
+              {t("common.tryAgain")}
+            </Button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && listings.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">{t("search.noResults")}</p>
+          </div>
+        )}
+
         {/* Property Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {properties.map((property, index) => (
-            <PropertyCard key={index} {...property} />
-          ))}
-        </div>
+        {!loading && !error && listings.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {listings.map((listing) => (
+              <PropertyCard
+                key={listing.id}
+                id={listing.id}
+                image={listing.primaryImage?.url || placeholderImage}
+                title={listing.title}
+                location={listing.city}
+                price={formatPrice(listing.price)}
+                bedrooms={listing.bedrooms}
+                bathrooms={listing.bathrooms}
+                area={formatArea(listing.area)}
+                type={getPropertyTypeLabel(listing.propertyType)}
+                featured={listing.isFeatured}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Pagination */}
-        <div className="flex justify-center gap-2">
-          <Button variant="outline">{t("search.previous")}</Button>
-          <Button variant="default">1</Button>
-          <Button variant="outline">2</Button>
-          <Button variant="outline">3</Button>
-          <Button variant="outline">{t("search.next")}</Button>
-        </div>
+        {!loading && pagination.totalPages > 1 && (
+          <div className="flex justify-center gap-2">
+            <Button
+              variant="outline"
+              disabled={!pagination.hasPreviousPage}
+              onClick={() => handlePageChange(pagination.page - 1)}
+            >
+              {t("search.previous")}
+            </Button>
+            {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+              const pageNum = i + 1;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={pagination.page === pageNum ? "default" : "outline"}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+            <Button
+              variant="outline"
+              disabled={!pagination.hasNextPage}
+              onClick={() => handlePageChange(pagination.page + 1)}
+            >
+              {t("search.next")}
+            </Button>
+          </div>
+        )}
       </main>
 
       <Footer />

@@ -338,4 +338,59 @@ export const ListingService = {
 
     return result.map((r) => r.city);
   },
+
+  async getListingsByLandlordId(
+    landlordId: number,
+    page: number = 1,
+    limit: number = 15
+  ): Promise<PaginatedResponse<ListingSearchResponse>> {
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countResult = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(listings)
+      .where(eq(listings.landlordId, landlordId));
+    const total = countResult[0]?.count ?? 0;
+
+    // Get paginated results
+    const results = await db
+      .select({
+        id: listings.id,
+        title: listings.title,
+        description: listings.description,
+        price: listings.price,
+        city: listings.city,
+        postalCode: listings.postalCode,
+        bedrooms: listings.bedrooms,
+        bathrooms: listings.bathrooms,
+        area: listings.area,
+        country: listings.country,
+        propertyType: listings.propertyType,
+        available: listings.available,
+        createdAt: listings.createdAt,
+        landlordId: listings.landlordId,
+        isFeatured: listings.isFeatured,
+        verificationStatus: listings.verificationStatus,
+      })
+      .from(listings)
+      .where(eq(listings.landlordId, landlordId))
+      .orderBy(desc(listings.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: results,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  },
 };

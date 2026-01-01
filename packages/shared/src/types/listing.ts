@@ -51,6 +51,33 @@ export interface ListingsQueryParams {
   limit?: number;
 }
 
+export interface SearchListingsParams {
+  q?: string;
+  propertyType?: PropertyType;
+  city?: string;
+  region?: string;
+  country?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minBedrooms?: number;
+  maxBedrooms?: number;
+  minBathrooms?: number;
+  maxBathrooms?: number;
+  minArea?: number;
+  maxArea?: number;
+  available?: boolean;
+  isFeatured?: boolean;
+  sortBy?: "featured" | "newest" | "oldest" | "price_asc" | "price_desc" | "area_asc" | "area_desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface ListingSearchResult extends Listing {
+  isFeatured: boolean;
+  primaryImage?: ListingImage;
+  verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
+}
+
 export interface ListingImage {
   id: number;
   listingId: number;

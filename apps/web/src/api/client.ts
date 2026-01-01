@@ -61,8 +61,11 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Handle 401 errors (unauthorized)
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Skip token refresh for auth endpoints (login, register, etc.)
+    const isAuthEndpoint = originalRequest.url?.startsWith("/auth/");
+
+    // Handle 401 errors (unauthorized) - but not for auth endpoints
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });

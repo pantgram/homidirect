@@ -6,3 +6,12 @@ export interface LoginInput {
 export interface RefreshInput {
   refreshToken: string;
 }
+
+export interface ForgotPasswordInput {
+  email: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  password: string;
+}

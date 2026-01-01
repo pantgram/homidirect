@@ -10,7 +10,14 @@ export const authKeys = {
 export function useCurrentUser() {
   return useQuery({
     queryKey: authKeys.user(),
-    queryFn: () => authApi.getMe(),
+    queryFn: async () => {
+      try {
+        return await authApi.getMe();
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+        throw error;
+      }
+    },
     enabled: authApi.isAuthenticated(),
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -26,6 +33,7 @@ export function useLogin() {
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
     },
     onError: (error) => {
+      console.error("Login mutation error:", error);
       return getApiError(error);
     },
   });

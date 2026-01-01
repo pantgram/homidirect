@@ -2,10 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Language = "en" | "el";
 
+type TranslationKey = keyof (typeof translations)["en"];
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: TranslationKey) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
@@ -62,6 +64,36 @@ export const translations = {
     "auth.signupFailed": "Registration failed. Please try again.",
     "auth.passwordMismatch": "Passwords do not match",
     "auth.passwordTooShort": "Password must be at least 8 characters",
+    "auth.forgotPassword": "Forgot Password",
+    "auth.forgotPasswordDesc":
+      "Enter your email address and we'll send you a link to reset your password.",
+    "auth.forgotPasswordLink": "Forgot your password?",
+    "auth.sendResetLink": "Send Reset Link",
+    "auth.sending": "Sending...",
+    "auth.resetLinkSent": "Reset Link Sent",
+    "auth.resetLinkSentDesc":
+      "If an account exists with this email, you will receive a password reset link.",
+    "auth.resetRequestFailed": "Failed to send reset link. Please try again.",
+    "auth.checkYourEmail": "Check Your Email",
+    "auth.checkYourEmailDesc":
+      "We've sent a password reset link to your email address. The link will expire in 1 hour.",
+    "auth.tryAnotherEmail": "Try Another Email",
+    "auth.backToLogin": "Back to Login",
+    "auth.resetPassword": "Reset Password",
+    "auth.resetPasswordDesc": "Enter your new password below.",
+    "auth.newPassword": "New Password",
+    "auth.confirmNewPassword": "Confirm New Password",
+    "auth.resetPasswordButton": "Reset Password",
+    "auth.resetting": "Resetting...",
+    "auth.passwordResetSuccess": "Password Reset Successful",
+    "auth.passwordResetSuccessDesc":
+      "Your password has been reset. You can now log in with your new password.",
+    "auth.goToLogin": "Go to Login",
+    "auth.resetFailed": "Failed to reset password. The link may have expired.",
+    "auth.invalidResetLink": "Invalid Reset Link",
+    "auth.invalidResetLinkDesc":
+      "This password reset link is invalid or has expired. Please request a new one.",
+    "auth.requestNewLink": "Request New Link",
 
     // User Menu
     "userMenu.myListings": "My Listings",
@@ -137,7 +169,7 @@ export const translations = {
     "listForm.errorDesc": "Failed to create listing. Please try again.",
     "listForm.accessDenied": "Access Denied",
     "listForm.accessDeniedDesc":
-      "You must be registered as a Property Owner or Admin to list properties.",
+      "You must be registered as a Property Owner to list properties.",
     "listForm.verificationNote":
       "After creating your listing, you will be redirected to upload verification documents.",
     "listForm.types.apartment": "Apartment",
@@ -168,7 +200,8 @@ export const translations = {
     "imageUpload.noImages": "No images uploaded yet",
     "imageUpload.uploadError": "Upload Error",
     "imageUpload.uploadFailed": "Failed to upload image. Please try again.",
-    "imageUpload.invalidType": "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
+    "imageUpload.invalidType":
+      "Invalid file type. Only JPEG, PNG, and WebP are allowed.",
     "imageUpload.fileTooLarge": "File is too large. Maximum size is 5MB.",
     "imageUpload.tooManyImages": "Too Many Images",
     "imageUpload.maxImagesReached": "Maximum {max} images allowed.",
@@ -219,6 +252,7 @@ export const translations = {
       "Join thousands of renters who have found their dream homes without paying agent fees",
     "home.startSearching": "Start Searching",
     "home.listYourProperty": "List Your Property",
+    "home.noListingsYet": "No properties available yet. Check back soon!",
     "home.allRightsReserved": "© 2024 HomiDirect. All rights reserved.",
     "home.privacyPolicy": "Privacy Policy",
     "home.termsOfService": "Terms of Service",
@@ -293,11 +327,47 @@ export const translations = {
     "search.newestFirst": "Newest First",
     "search.previous": "Previous",
     "search.next": "Next",
+    "search.room": "Room",
+    "search.allLocations": "All Locations",
+    "search.noResults": "No properties found matching your criteria.",
+    "search.errorLoading": "Failed to load properties. Please try again.",
 
     // Common
+    "common.tryAgain": "Try Again",
     "common.selectType": "Select type",
     "common.select": "Select",
     "common.footer": "© 2024 HomiDirect. Connect directly, rent confidently.",
+
+    // Listing Detail
+    "listingDetail.back": "Back",
+    "listingDetail.backToSearch": "Back to Search",
+    "listingDetail.notFound": "Listing Not Found",
+    "listingDetail.notFoundDesc": "The listing you're looking for doesn't exist or has been removed.",
+    "listingDetail.errorLoading": "Failed to load listing. Please try again.",
+    "listingDetail.available": "Available",
+    "listingDetail.unavailable": "Not Available",
+    "listingDetail.bedrooms": "Bedrooms",
+    "listingDetail.bathrooms": "Bathrooms",
+    "listingDetail.area": "Area",
+    "listingDetail.type": "Type",
+    "listingDetail.description": "Description",
+    "listingDetail.details": "Property Details",
+    "listingDetail.propertyType": "Property Type",
+    "listingDetail.maxTenants": "Max Tenants",
+    "listingDetail.shareable": "Shareable",
+    "listingDetail.yes": "Yes",
+    "listingDetail.no": "No",
+    "listingDetail.listedOn": "Listed On",
+    "listingDetail.pricePerRoom": "Price Per Room",
+    "listingDetail.month": "month",
+    "listingDetail.monthlyRent": "Monthly Rent",
+    "listingDetail.contactOwner": "Contact Owner",
+    "listingDetail.requestViewing": "Request Viewing",
+    "listingDetail.directContact": "Connect directly with the property owner - no agents, no fees.",
+    "listingDetail.quickStats": "Quick Stats",
+    "listingDetail.pricePerSqm": "Price per m²",
+    "listingDetail.safetyTip": "Safety Tip",
+    "listingDetail.safetyTipDesc": "Always visit the property before making any payments. Never send money without signing a proper rental agreement.",
 
     // Privacy Policy
     "privacy.title": "Privacy Policy",
@@ -377,6 +447,25 @@ export const translations = {
     "contact.messageSent": "Message Sent!",
     "contact.messageSentDesc":
       "We've received your message and will get back to you soon.",
+
+    // My Listings
+    "myListings.title": "My Listings",
+    "myListings.subtitle": "Manage your property listings",
+    "myListings.noListings": "You haven't listed any properties yet.",
+    "myListings.createFirst": "Create Your First Listing",
+    "myListings.errorLoading": "Failed to load your listings. Please try again.",
+    "myListings.loginRequired": "Please log in to view your listings.",
+    "myListings.landlordRequired": "Only property owners can view their listings.",
+    "myListings.edit": "Edit",
+    "myListings.delete": "Delete",
+    "myListings.confirmDelete": "Are you sure you want to delete this listing?",
+    "myListings.deleteSuccess": "Listing deleted successfully.",
+    "myListings.deleteFailed": "Failed to delete listing. Please try again.",
+    "myListings.available": "Available",
+    "myListings.unavailable": "Unavailable",
+    "myListings.pending": "Pending Verification",
+    "myListings.verified": "Verified",
+    "myListings.rejected": "Verification Rejected",
   },
   el: {
     // Navigation
@@ -428,7 +517,39 @@ export const translations = {
     "auth.loginFailed": "Η σύνδεση απέτυχε. Ελέγξτε τα στοιχεία σας.",
     "auth.signupFailed": "Η εγγραφή απέτυχε. Δοκιμάστε ξανά.",
     "auth.passwordMismatch": "Οι κωδικοί δεν ταιριάζουν",
-    "auth.passwordTooShort": "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες",
+    "auth.passwordTooShort":
+      "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες",
+    "auth.forgotPassword": "Ξεχάσατε τον Κωδικό",
+    "auth.forgotPasswordDesc":
+      "Εισάγετε τη διεύθυνση email σας και θα σας στείλουμε έναν σύνδεσμο για να επαναφέρετε τον κωδικό σας.",
+    "auth.forgotPasswordLink": "Ξεχάσατε τον κωδικό σας;",
+    "auth.sendResetLink": "Αποστολή Συνδέσμου Επαναφοράς",
+    "auth.sending": "Αποστολή...",
+    "auth.resetLinkSent": "Ο Σύνδεσμος Στάλθηκε",
+    "auth.resetLinkSentDesc":
+      "Αν υπάρχει λογαριασμός με αυτό το email, θα λάβετε έναν σύνδεσμο επαναφοράς κωδικού.",
+    "auth.resetRequestFailed": "Αποτυχία αποστολής συνδέσμου. Δοκιμάστε ξανά.",
+    "auth.checkYourEmail": "Ελέγξτε το Email σας",
+    "auth.checkYourEmailDesc":
+      "Σας στείλαμε έναν σύνδεσμο επαναφοράς κωδικού στο email σας. Ο σύνδεσμος λήγει σε 1 ώρα.",
+    "auth.tryAnotherEmail": "Δοκιμάστε Άλλο Email",
+    "auth.backToLogin": "Επιστροφή στη Σύνδεση",
+    "auth.resetPassword": "Επαναφορά Κωδικού",
+    "auth.resetPasswordDesc": "Εισάγετε τον νέο σας κωδικό παρακάτω.",
+    "auth.newPassword": "Νέος Κωδικός",
+    "auth.confirmNewPassword": "Επιβεβαίωση Νέου Κωδικού",
+    "auth.resetPasswordButton": "Επαναφορά Κωδικού",
+    "auth.resetting": "Επαναφορά...",
+    "auth.passwordResetSuccess": "Επιτυχής Επαναφορά Κωδικού",
+    "auth.passwordResetSuccessDesc":
+      "Ο κωδικός σας επαναφέρθηκε. Μπορείτε τώρα να συνδεθείτε με τον νέο σας κωδικό.",
+    "auth.goToLogin": "Μετάβαση στη Σύνδεση",
+    "auth.resetFailed":
+      "Αποτυχία επαναφοράς κωδικού. Ο σύνδεσμος μπορεί να έχει λήξει.",
+    "auth.invalidResetLink": "Μη Έγκυρος Σύνδεσμος",
+    "auth.invalidResetLinkDesc":
+      "Αυτός ο σύνδεσμος επαναφοράς κωδικού είναι μη έγκυρος ή έχει λήξει. Ζητήστε έναν νέο.",
+    "auth.requestNewLink": "Αίτηση Νέου Συνδέσμου",
 
     // User Menu
     "userMenu.myListings": "Οι Καταχωρήσεις μου",
@@ -504,7 +625,7 @@ export const translations = {
     "listForm.errorDesc": "Αποτυχία δημιουργίας καταχώρησης. Δοκιμάστε ξανά.",
     "listForm.accessDenied": "Δεν Επιτρέπεται η Πρόσβαση",
     "listForm.accessDeniedDesc":
-      "Πρέπει να είστε εγγεγραμμένος ως Ιδιοκτήτης Ακινήτου ή Διαχειριστής για να καταχωρήσετε ακίνητα.",
+      "Πρέπει να είστε εγγεγραμμένος ως Ιδιοκτήτης Ακινήτου για να καταχωρήσετε ακίνητα.",
     "listForm.verificationNote":
       "Μετά τη δημιουργία της καταχώρησης, θα μεταφερθείτε για να ανεβάσετε έγγραφα επαλήθευσης.",
     "listForm.types.apartment": "Διαμέρισμα",
@@ -512,20 +633,26 @@ export const translations = {
     "listForm.types.studio": "Στούντιο",
     "listForm.types.room": "Δωμάτιο",
     "listForm.validation.error": "Σφάλμα Επικύρωσης",
-    "listForm.validation.fixErrors": "Παρακαλώ διορθώστε τα σφάλματα στη φόρμα.",
+    "listForm.validation.fixErrors":
+      "Παρακαλώ διορθώστε τα σφάλματα στη φόρμα.",
     "listForm.validation.titleRequired": "Ο τίτλος ακινήτου είναι υποχρεωτικός",
     "listForm.validation.typeRequired": "Ο τύπος ακινήτου είναι υποχρεωτικός",
-    "listForm.validation.priceRequired": "Η τιμή πρέπει να είναι μεγαλύτερη από 0",
+    "listForm.validation.priceRequired":
+      "Η τιμή πρέπει να είναι μεγαλύτερη από 0",
     "listForm.validation.cityRequired": "Η πόλη είναι υποχρεωτική",
-    "listForm.validation.bedroomsRequired": "Ο αριθμός υπνοδωματίων είναι υποχρεωτικός",
-    "listForm.validation.bathroomsRequired": "Ο αριθμός μπάνιων είναι υποχρεωτικός",
-    "listForm.validation.areaRequired": "Το εμβαδόν πρέπει να είναι μεγαλύτερο από 0",
+    "listForm.validation.bedroomsRequired":
+      "Ο αριθμός υπνοδωματίων είναι υποχρεωτικός",
+    "listForm.validation.bathroomsRequired":
+      "Ο αριθμός μπάνιων είναι υποχρεωτικός",
+    "listForm.validation.areaRequired":
+      "Το εμβαδόν πρέπει να είναι μεγαλύτερο από 0",
     "listForm.validation.imagesRequired": "Απαιτούνται Φωτογραφίες",
     "listForm.validation.addImages":
       "Παρακαλώ ανεβάστε τουλάχιστον μία φωτογραφία του ακινήτου σας.",
 
     // Image Upload Component
-    "imageUpload.dragOrClick": "Σύρετε και αποθέστε εικόνες εδώ, ή κάντε κλικ για επιλογή",
+    "imageUpload.dragOrClick":
+      "Σύρετε και αποθέστε εικόνες εδώ, ή κάντε κλικ για επιλογή",
     "imageUpload.supportedFormats": "Υποστηρίζονται JPEG, PNG, WebP",
     "imageUpload.maxReached": "Μέγιστος αριθμός εικόνων",
     "imageUpload.imagesUploaded": "εικόνες ανεβασμένες",
@@ -535,8 +662,10 @@ export const translations = {
     "imageUpload.noImages": "Δεν έχουν ανεβεί εικόνες ακόμα",
     "imageUpload.uploadError": "Σφάλμα Ανεβάσματος",
     "imageUpload.uploadFailed": "Αποτυχία ανεβάσματος εικόνας. Δοκιμάστε ξανά.",
-    "imageUpload.invalidType": "Μη έγκυρος τύπος αρχείου. Επιτρέπονται μόνο JPEG, PNG και WebP.",
-    "imageUpload.fileTooLarge": "Το αρχείο είναι πολύ μεγάλο. Μέγιστο μέγεθος 5MB.",
+    "imageUpload.invalidType":
+      "Μη έγκυρος τύπος αρχείου. Επιτρέπονται μόνο JPEG, PNG και WebP.",
+    "imageUpload.fileTooLarge":
+      "Το αρχείο είναι πολύ μεγάλο. Μέγιστο μέγεθος 5MB.",
     "imageUpload.tooManyImages": "Πολλές Εικόνες",
     "imageUpload.maxImagesReached": "Επιτρέπονται μέχρι {max} εικόνες.",
     "imageUpload.imageRemoved": "Η Εικόνα Αφαιρέθηκε",
@@ -586,6 +715,7 @@ export const translations = {
       "Ενταχθείτε σε χιλιάδες ενοικιαστές που βρήκαν τα σπίτια των ονείρων τους χωρίς να πληρώσουν προμήθειες μεσίτη",
     "home.startSearching": "Έναρξη Αναζήτησης",
     "home.listYourProperty": "Καταχωρήστε το Ακίνητό σας",
+    "home.noListingsYet": "Δεν υπάρχουν ακόμα διαθέσιμα ακίνητα. Ελέγξτε ξανά σύντομα!",
     "home.allRightsReserved":
       "© 2024 HomiDirect. Όλα τα δικαιώματα διατηρούνται.",
     "home.privacyPolicy": "Πολιτική Απορρήτου",
@@ -661,12 +791,48 @@ export const translations = {
     "search.newestFirst": "Νεότερα Πρώτα",
     "search.previous": "Προηγούμενο",
     "search.next": "Επόμενο",
+    "search.room": "Δωμάτιο",
+    "search.allLocations": "Όλες οι Τοποθεσίες",
+    "search.noResults": "Δεν βρέθηκαν ακίνητα που ταιριάζουν με τα κριτήριά σας.",
+    "search.errorLoading": "Αποτυχία φόρτωσης ακινήτων. Δοκιμάστε ξανά.",
 
     // Common
+    "common.tryAgain": "Δοκιμάστε Ξανά",
     "common.selectType": "Επιλογή τύπου",
     "common.select": "Επιλογή",
     "common.footer":
       "© 2024 HomiDirect. Συνδεθείτε απευθείας, ενοικιάστε με εμπιστοσύνη.",
+
+    // Listing Detail
+    "listingDetail.back": "Πίσω",
+    "listingDetail.backToSearch": "Επιστροφή στην Αναζήτηση",
+    "listingDetail.notFound": "Η Καταχώρηση δεν Βρέθηκε",
+    "listingDetail.notFoundDesc": "Η καταχώρηση που ψάχνετε δεν υπάρχει ή έχει αφαιρεθεί.",
+    "listingDetail.errorLoading": "Αποτυχία φόρτωσης καταχώρησης. Δοκιμάστε ξανά.",
+    "listingDetail.available": "Διαθέσιμο",
+    "listingDetail.unavailable": "Μη Διαθέσιμο",
+    "listingDetail.bedrooms": "Υπνοδωμάτια",
+    "listingDetail.bathrooms": "Μπάνια",
+    "listingDetail.area": "Εμβαδόν",
+    "listingDetail.type": "Τύπος",
+    "listingDetail.description": "Περιγραφή",
+    "listingDetail.details": "Λεπτομέρειες Ακινήτου",
+    "listingDetail.propertyType": "Τύπος Ακινήτου",
+    "listingDetail.maxTenants": "Μέγιστος Αριθμός Ενοικιαστών",
+    "listingDetail.shareable": "Κοινόχρηστο",
+    "listingDetail.yes": "Ναι",
+    "listingDetail.no": "Όχι",
+    "listingDetail.listedOn": "Ημερομηνία Καταχώρησης",
+    "listingDetail.pricePerRoom": "Τιμή ανά Δωμάτιο",
+    "listingDetail.month": "μήνα",
+    "listingDetail.monthlyRent": "Μηνιαίο Ενοίκιο",
+    "listingDetail.contactOwner": "Επικοινωνία με Ιδιοκτήτη",
+    "listingDetail.requestViewing": "Αίτημα Επίσκεψης",
+    "listingDetail.directContact": "Συνδεθείτε απευθείας με τον ιδιοκτήτη - χωρίς μεσίτες, χωρίς χρεώσεις.",
+    "listingDetail.quickStats": "Γρήγορα Στατιστικά",
+    "listingDetail.pricePerSqm": "Τιμή ανά τ.μ.",
+    "listingDetail.safetyTip": "Συμβουλή Ασφαλείας",
+    "listingDetail.safetyTipDesc": "Πάντα επισκεφθείτε το ακίνητο πριν κάνετε οποιαδήποτε πληρωμή. Ποτέ μην στέλνετε χρήματα χωρίς να υπογράψετε κατάλληλη σύμβαση ενοικίασης.",
 
     // Privacy Policy
     "privacy.title": "Πολιτική Απορρήτου",
@@ -751,6 +917,25 @@ export const translations = {
     "contact.messageSent": "Το Μήνυμα Στάλθηκε!",
     "contact.messageSentDesc":
       "Λάβαμε το μήνυμά σας και θα επικοινωνήσουμε μαζί σας σύντομα.",
+
+    // My Listings
+    "myListings.title": "Οι Καταχωρήσεις μου",
+    "myListings.subtitle": "Διαχειριστείτε τις καταχωρήσεις ακινήτων σας",
+    "myListings.noListings": "Δεν έχετε καταχωρήσει ακόμα ακίνητα.",
+    "myListings.createFirst": "Δημιουργήστε την Πρώτη σας Καταχώρηση",
+    "myListings.errorLoading": "Αποτυχία φόρτωσης καταχωρήσεων. Δοκιμάστε ξανά.",
+    "myListings.loginRequired": "Συνδεθείτε για να δείτε τις καταχωρήσεις σας.",
+    "myListings.landlordRequired": "Μόνο ιδιοκτήτες ακινήτων μπορούν να δουν τις καταχωρήσεις τους.",
+    "myListings.edit": "Επεξεργασία",
+    "myListings.delete": "Διαγραφή",
+    "myListings.confirmDelete": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την καταχώρηση;",
+    "myListings.deleteSuccess": "Η καταχώρηση διαγράφηκε επιτυχώς.",
+    "myListings.deleteFailed": "Αποτυχία διαγραφής. Δοκιμάστε ξανά.",
+    "myListings.available": "Διαθέσιμο",
+    "myListings.unavailable": "Μη Διαθέσιμο",
+    "myListings.pending": "Αναμονή Επαλήθευσης",
+    "myListings.verified": "Επαληθευμένο",
+    "myListings.rejected": "Απορρίφθηκε",
   },
 };
 
@@ -759,7 +944,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem("language");
-    return (saved as Language) || "en";
+    return saved === "en" || saved === "el" ? saved : "en";
   });
 
   useEffect(() => {
@@ -770,7 +955,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     setLanguageState(lang);
   };
 
-  const t = (key: string): string => {
+  const t = (key: TranslationKey): string => {
     return translations[language][key] || key;
   };
 

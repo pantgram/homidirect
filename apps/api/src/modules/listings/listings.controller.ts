@@ -76,4 +76,14 @@ export const ListingController = {
     const cities = await ListingService.getDistinctCities();
     return reply.code(200).send({ cities });
   },
+
+  async getMyListings(
+    request: FastifyRequest<{ Querystring: { page?: number; limit?: number } }>,
+    reply: FastifyReply
+  ) {
+    const userId = (request as any).user.id;
+    const { page = 1, limit = 15 } = request.query;
+    const result = await ListingService.getListingsByLandlordId(userId, page, limit);
+    return reply.code(200).send(result);
+  },
 };

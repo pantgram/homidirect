@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,6 +26,7 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -34,9 +41,14 @@ const Auth = () => {
       });
       navigate("/");
     } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        t("auth.loginFailed") ||
+        "Login failed";
       toast({
         title: t("auth.error") || "Error",
-        description: error.response?.data?.message || t("auth.loginFailed") || "Login failed",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -46,6 +58,7 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -72,7 +85,9 @@ const Auth = () => {
       setIsLoading(false);
       toast({
         title: t("auth.error") || "Error",
-        description: t("auth.passwordTooShort") || "Password must be at least 8 characters",
+        description:
+          t("auth.passwordTooShort") ||
+          "Password must be at least 8 characters",
         variant: "destructive",
       });
       return;
@@ -112,7 +127,10 @@ const Auth = () => {
     } catch (error: any) {
       toast({
         title: t("auth.error") || "Error",
-        description: error.response?.data?.message || t("auth.signupFailed") || "Registration failed",
+        description:
+          error.response?.data?.message ||
+          t("auth.signupFailed") ||
+          "Registration failed",
         variant: "destructive",
       });
     } finally {
@@ -123,7 +141,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
           <Tabs defaultValue="login" className="w-full">
@@ -136,12 +154,10 @@ const Auth = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>{t("auth.welcomeBack")}</CardTitle>
-                  <CardDescription>
-                    {t("auth.loginDesc")}
-                  </CardDescription>
+                  <CardDescription>{t("auth.loginDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleLogin} className="space-y-4">
+                  <form onSubmit={handleLogin} noValidate className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="login-email">{t("auth.email")}</Label>
                       <Input
@@ -153,7 +169,17 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="login-password">{t("auth.password")}</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="login-password">
+                          {t("auth.password")}
+                        </Label>
+                        <Link
+                          to="/forgot-password"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {t("auth.forgotPasswordLink")}
+                        </Link>
+                      </div>
                       <Input
                         id="login-password"
                         name="password"
@@ -162,7 +188,11 @@ const Auth = () => {
                         required
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
                       {isLoading ? t("auth.loggingIn") : t("auth.loginButton")}
                     </Button>
                   </form>
@@ -174,12 +204,14 @@ const Auth = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>{t("auth.createAccount")}</CardTitle>
-                  <CardDescription>
-                    {t("auth.signupDesc")}
-                  </CardDescription>
+                  <CardDescription>{t("auth.signupDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSignup} className="space-y-4">
+                  <form
+                    onSubmit={handleSignup}
+                    noValidate
+                    className="space-y-4"
+                  >
                     <div className="space-y-2">
                       <Label htmlFor="signup-name">{t("auth.fullName")}</Label>
                       <Input
@@ -201,7 +233,9 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-password">{t("auth.password")}</Label>
+                      <Label htmlFor="signup-password">
+                        {t("auth.password")}
+                      </Label>
                       <Input
                         id="signup-password"
                         name="password"
@@ -212,7 +246,9 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-confirm">{t("auth.confirmPassword")}</Label>
+                      <Label htmlFor="signup-confirm">
+                        {t("auth.confirmPassword")}
+                      </Label>
                       <Input
                         id="signup-confirm"
                         name="confirmPassword"
@@ -245,8 +281,14 @@ const Auth = () => {
                         </div>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? t("auth.creatingAccount") : t("auth.signUpButton")}
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={isLoading}
+                    >
+                      {isLoading
+                        ? t("auth.creatingAccount")
+                        : t("auth.signUpButton")}
                     </Button>
                   </form>
                 </CardContent>

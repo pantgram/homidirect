@@ -7,6 +7,10 @@ import type {
   RefreshTokenRequest,
   RefreshResponse,
   User,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "./types";
 
 export const authApi = {
@@ -55,5 +59,21 @@ export const authApi = {
 
   isAuthenticated(): boolean {
     return !!tokenStorage.getToken();
+  },
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> {
+    const response = await apiClient.post<ForgotPasswordResponse>(
+      "/auth/forgot-password",
+      data
+    );
+    return response.data;
+  },
+
+  async resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+    const response = await apiClient.post<ResetPasswordResponse>(
+      "/auth/reset-password",
+      data
+    );
+    return response.data;
   },
 };

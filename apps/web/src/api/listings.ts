@@ -5,6 +5,9 @@ import type {
   UpdateListingRequest,
   ListingsQueryParams,
   ListingImage,
+  SearchListingsParams,
+  ListingSearchResult,
+  PaginatedResponse,
 } from "./types";
 
 export interface PendingImage {
@@ -29,9 +32,27 @@ export const listingsApi = {
     return response.data;
   },
 
-  async getById(id: number): Promise<Listing> {
-    const response = await apiClient.get<Listing>(`/listings/${id}`);
+  async getMyListings(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<ListingSearchResult>> {
+    const response = await apiClient.get<PaginatedResponse<ListingSearchResult>>(
+      "/listings/my-listings",
+      { params }
+    );
     return response.data;
+  },
+
+  async search(
+    params?: SearchListingsParams
+  ): Promise<PaginatedResponse<ListingSearchResult>> {
+    const response = await apiClient.get<PaginatedResponse<ListingSearchResult>>(
+      "/listings/search",
+      { params }
+    );
+    return response.data;
+  },
+
+  async getById(id: number): Promise<Listing> {
+    const response = await apiClient.get<{ listing: Listing }>(`/listings/${id}`);
+    return response.data.listing;
   },
 
   async create(data: CreateListingWithSessionRequest): Promise<Listing> {
@@ -40,8 +61,8 @@ export const listingsApi = {
   },
 
   async update(id: number, data: UpdateListingRequest): Promise<Listing> {
-    const response = await apiClient.patch<Listing>(`/listings/${id}`, data);
-    return response.data;
+    const response = await apiClient.patch<{ listing: Listing }>(`/listings/${id}`, data);
+    return response.data.listing;
   },
 
   async delete(id: number): Promise<void> {

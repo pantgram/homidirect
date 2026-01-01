@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import PropertyCard from "@/components/PropertyCard";
@@ -6,64 +7,56 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Users, TrendingDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import property1 from "@/assets/property-1.jpg";
-import property2 from "@/assets/property-2.jpg";
-import property3 from "@/assets/property-3.jpg";
-import property4 from "@/assets/property-4.jpg";
+import { listingsApi } from "@/api/listings";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ListingSearchResult } from "@/api/types";
+import placeholderImage from "@/assets/property-1.jpg";
+
+const PropertyCardSkeleton = () => (
+  <div className="rounded-lg border border-border overflow-hidden">
+    <Skeleton className="aspect-[4/3] w-full" />
+    <div className="p-5 space-y-3">
+      <Skeleton className="h-6 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <div className="flex gap-4 pt-4">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-4 w-16" />
+      </div>
+    </div>
+  </div>
+);
+
+const mapListingToPropertyCard = (listing: ListingSearchResult) => ({
+  id: listing.id,
+  image: listing.primaryImage?.url || placeholderImage,
+  title: listing.title,
+  location: listing.city,
+  price: listing.price.toLocaleString(),
+  bedrooms: listing.bedrooms,
+  bathrooms: listing.bathrooms,
+  area: `${listing.area.toLocaleString()} sq ft`,
+  type: listing.propertyType.charAt(0).toUpperCase() + listing.propertyType.slice(1),
+  featured: listing.isFeatured,
+});
 
 const Index = () => {
   const { t } = useLanguage();
 
-  const properties = [
-    {
-      id: 1,
-      image: property1,
-      title: "Modern Downtown Loft",
-      location: "Downtown, New York",
-      price: "2,500",
-      bedrooms: 2,
-      bathrooms: 2,
-      area: "1,200 sqft",
-      type: "Apartment",
-      featured: true,
+  const { data: listingsResponse, isLoading } = useQuery({
+    queryKey: ["featuredListings"],
+    queryFn: async () => {
+      // First try to get featured listings
+      const featured = await listingsApi.search({ isFeatured: true, limit: 4 });
+      if (featured.data.length > 0) {
+        return featured;
+      }
+      // Fall back to newest listings if no featured ones
+      return listingsApi.search({ sortBy: "newest", limit: 4 });
     },
-    {
-      id: 2,
-      image: property2,
-      title: "Cozy Studio Apartment",
-      location: "Brooklyn, New York",
-      price: "1,400",
-      bedrooms: 1,
-      bathrooms: 1,
-      area: "550 sqft",
-      type: "Studio",
-      featured: false,
-    },
-    {
-      id: 3,
-      image: property3,
-      title: "Luxury Penthouse",
-      location: "Manhattan, New York",
-      price: "5,200",
-      bedrooms: 3,
-      bathrooms: 3,
-      area: "2,400 sqft",
-      type: "Penthouse",
-      featured: true,
-    },
-    {
-      id: 4,
-      image: property4,
-      title: "Spacious Family Home",
-      location: "Queens, New York",
-      price: "3,100",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "1,800 sqft",
-      type: "Apartment",
-      featured: false,
-    },
-  ];
+  });
+
+  const properties = listingsResponse?.data.map(mapListingToPropertyCard) || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,24 +74,42 @@ const Index = () => {
               <p className="text-muted-foreground">{t("home.handPicked")}</p>
             </div>
             <Button
+              asChild
               variant="ghost"
               className="hidden md:flex items-center gap-2"
             >
-              {t("home.viewAll")}
-              <ArrowRight className="h-4 w-4" />
+              <Link to="/search">
+                {t("home.viewAll")}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} {...property} />
-            ))}
+            {isLoading ? (
+              <>
+                <PropertyCardSkeleton />
+                <PropertyCardSkeleton />
+                <PropertyCardSkeleton />
+                <PropertyCardSkeleton />
+              </>
+            ) : properties.length > 0 ? (
+              properties.map((property) => (
+                <PropertyCard key={property.id} {...property} />
+              ))
+            ) : (
+              <p className="col-span-full text-center text-muted-foreground py-8">
+                {t("home.noListingsYet")}
+              </p>
+            )}
           </div>
 
           <div className="mt-8 text-center md:hidden">
-            <Button variant="outline" className="w-full">
-              {t("home.viewAllProperties")}
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/search">
+                {t("home.viewAllProperties")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
@@ -148,7 +159,6 @@ const Index = () => {
                 {t("home.directCommunicationDesc")}
               </p>
             </div>
-            heroImage
           </div>
         </div>
       </section>

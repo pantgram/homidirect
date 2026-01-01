@@ -34,6 +34,14 @@ export async function listingRoutes(fastify: FastifyInstance) {
   // Get distinct cities for location filter dropdown
   fastify.get("/cities", ListingController.getCities);
 
+  // Get current user's listings - requires authentication (landlord only)
+  fastify.get<{ Querystring: { page?: number; limit?: number } }>("/my-listings", {
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+    ]
+  }, ListingController.getMyListings);
+
   // Get all listings - public (anyone can browse)
   fastify.get("", ListingController.getAll);
 

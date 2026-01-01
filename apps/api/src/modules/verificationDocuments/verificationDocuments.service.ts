@@ -10,10 +10,16 @@ import {
   VerificationHistoryResponse,
   DocumentType,
 } from "./verificationDocuments.types";
-import { NotFoundError, ValidationError, ForbiddenError } from "../../utils/errors";
+import {
+  NotFoundError,
+  ValidationError,
+  ForbiddenError,
+} from "../../utils/errors";
 
 export const VerificationDocumentService = {
-  async getDocumentsByListingId(listingId: number): Promise<VerificationDocumentResponse[]> {
+  async getDocumentsByListingId(
+    listingId: number
+  ): Promise<VerificationDocumentResponse[]> {
     const docs = await db
       .select({
         id: verificationDocuments.id,
@@ -31,7 +37,9 @@ export const VerificationDocumentService = {
     return docs as VerificationDocumentResponse[];
   },
 
-  async getVerificationHistory(listingId: number): Promise<VerificationHistoryResponse[]> {
+  async getVerificationHistory(
+    listingId: number
+  ): Promise<VerificationHistoryResponse[]> {
     const history = await db
       .select({
         id: verificationHistory.id,
@@ -49,7 +57,9 @@ export const VerificationDocumentService = {
     return history as VerificationHistoryResponse[];
   },
 
-  async getVerificationStatus(listingId: number): Promise<VerificationStatusResponse> {
+  async getVerificationStatus(
+    listingId: number
+  ): Promise<VerificationStatusResponse> {
     const [listing] = await db
       .select({
         id: listings.id,
@@ -105,13 +115,15 @@ export const VerificationDocumentService = {
 
     // Only allow upload if status is PENDING or REJECTED (resubmission)
     if (listing.verificationStatus === "APPROVED") {
-      throw new ValidationError("Cannot upload documents for an already approved listing");
+      throw new ValidationError(
+        "Cannot upload documents for an already approved listing"
+      );
     }
 
     // Upload to R2
     const timestamp = Date.now();
     const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const key = `verification/${listingId}/${timestamp}-${sanitizedFilename}`;
+    const key = `listings/${listingId}/documents/${timestamp}-${sanitizedFilename}`;
 
     const url = await uploadToR2(key, fileBuffer, mimetype);
 
@@ -154,7 +166,11 @@ export const VerificationDocumentService = {
     return newDocument as VerificationDocumentResponse;
   },
 
-  async deleteDocument(documentId: number, userId: number, isAdmin: boolean): Promise<boolean> {
+  async deleteDocument(
+    documentId: number,
+    userId: number,
+    isAdmin: boolean
+  ): Promise<boolean> {
     const [document] = await db
       .select({
         id: verificationDocuments.id,
@@ -183,7 +199,9 @@ export const VerificationDocumentService = {
       .limit(1);
 
     if (listing && listing.verificationStatus === "APPROVED") {
-      throw new ValidationError("Cannot delete documents from an approved listing");
+      throw new ValidationError(
+        "Cannot delete documents from an approved listing"
+      );
     }
 
     // Delete from R2

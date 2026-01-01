@@ -1,9 +1,11 @@
+import { Link } from "react-router-dom";
 import { MapPin, Bed, Bath, Square } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PropertyCardProps {
+  id?: number;
   image: string;
   title: string;
   location: string;
@@ -16,6 +18,7 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({
+  id,
   image,
   title,
   location,
@@ -27,8 +30,20 @@ const PropertyCard = ({
   featured = false,
 }: PropertyCardProps) => {
   const { t } = useLanguage();
-  
+
+  const CardWrapper = ({ children }: { children: React.ReactNode }) => {
+    if (id) {
+      return (
+        <Link to={`/listings/${id}`} className="block">
+          {children}
+        </Link>
+      );
+    }
+    return <>{children}</>;
+  };
+
   return (
+    <CardWrapper>
     <Card className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-elegant border-border">
       <div className="relative overflow-hidden aspect-[4/3]">
         <img
@@ -79,6 +94,7 @@ const PropertyCard = ({
         </div>
       </CardContent>
     </Card>
+    </CardWrapper>
   );
 };
 

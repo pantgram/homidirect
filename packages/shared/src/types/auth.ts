@@ -34,3 +34,21 @@ export interface RegisterResponse {
 export interface RefreshResponse {
   tokens: AuthTokens;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  resetToken?: string; // Only returned in development
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}

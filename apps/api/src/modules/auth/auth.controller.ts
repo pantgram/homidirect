@@ -1,11 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "./auth.service";
 import { NewUser } from "../users/users.model";
-import { LoginInput, RefreshInput } from "./auth.types";
+import { LoginInput, RefreshInput, ForgotPasswordInput, ResetPasswordInput } from "./auth.types";
 import {
   ConflictError,
   UnauthorizedError,
   InternalServerError,
+  ValidationError,
 } from "@/utils/errors";
 
 export const AuthController = {
@@ -28,8 +29,11 @@ export const AuthController = {
       return reply.send({ token });
     } catch (err: any) {
       req.log.error(err);
-      if (err.message === "Invalid credentials") {
-        throw new UnauthorizedError("Invalid email or password");
+      if (err.message === "No account found with this email address") {
+        throw new UnauthorizedError("No account found with this email address");
+      }
+      if (err.message === "Incorrect password") {
+        throw new UnauthorizedError("Incorrect password");
       }
       throw new InternalServerError("Login failed");
     }
@@ -45,6 +49,35 @@ export const AuthController = {
     } catch (err: any) {
       req.log.error(err);
       throw new UnauthorizedError("Invalid or expired refresh token");
+    }
+  },
+
+  async forgotPassword(
+    req: FastifyRequest<{ Body: ForgotPasswordInput }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const result = await AuthService.forgotPassword(req.body);
+      return reply.send(result);
+    } catch (err: any) {
+      req.log.error(err);
+      throw new InternalServerError("Failed to process password reset request");
+    }
+  },
+
+  async resetPassword(
+    req: FastifyRequest<{ Body: ResetPasswordInput }>,
+    reply: FastifyReply
+  ) {
+    try {
+      const result = await AuthService.resetPassword(req.body);
+      return reply.send(result);
+    } catch (err: any) {
+      req.log.error(err);
+      if (err.message === "Invalid or expired reset token") {
+        throw new ValidationError("Invalid or expired reset token");
+      }
+      throw new InternalServerError("Failed to reset password");
     }
   },
 };

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +8,27 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const Hero = () => {
   const { t } = useLanguage();
-  
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
+    }
+    navigate(`/search${params.toString() ? `?${params.toString()}` : ""}`);
+  };
+
+  const handleQuickFilter = (propertyType: string) => {
+    const params = new URLSearchParams();
+    params.set("type", propertyType);
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
+    }
+    navigate(`/search?${params.toString()}`);
+  };
+
   return (
     <section className="relative min-h-[600px] flex items-center">
       {/* Background Image with Overlay */}
@@ -33,36 +55,38 @@ const Hero = () => {
           </p>
 
           {/* Search Bar */}
-          <div className="bg-card rounded-xl shadow-elegant p-6 backdrop-blur-sm">
+          <form onSubmit={handleSearch} className="bg-card rounded-xl shadow-elegant p-6 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row gap-4">
               <Input
                 type="text"
                 placeholder={t("hero.searchPlaceholder")}
                 className="flex-1 h-12 text-base"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <Button variant="hero" size="lg" className="h-12">
+              <Button type="submit" variant="hero" size="lg" className="h-12">
                 <Search className="mr-2 h-5 w-5" />
                 {t("hero.search")}
               </Button>
             </div>
             <div className="flex flex-wrap gap-3 mt-4">
-              <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <button type="button" onClick={() => handleQuickFilter("apartment")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 {t("hero.apartments")}
               </button>
               <span className="text-muted-foreground">•</span>
-              <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <button type="button" onClick={() => handleQuickFilter("house")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 {t("hero.houses")}
               </button>
               <span className="text-muted-foreground">•</span>
-              <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <button type="button" onClick={() => handleQuickFilter("studio")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 {t("hero.studios")}
               </button>
               <span className="text-muted-foreground">•</span>
-              <button className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              <button type="button" onClick={() => handleQuickFilter("room")} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                 {t("hero.sharedSpaces")}
               </button>
             </div>
-          </div>
+          </form>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-6 mt-10">
