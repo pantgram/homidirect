@@ -1,0 +1,107 @@
+import { apiClient } from "./client";
+import type {
+  Listing,
+  CreateListingRequest,
+  UpdateListingRequest,
+  ListingsQueryParams,
+  ListingImage,
+} from "./types";
+
+export interface PendingImage {
+  id: number;
+  url: string;
+  uploadSessionId: string;
+  createdAt: string;
+}
+
+export interface UploadPendingImageResponse {
+  image: PendingImage;
+  uploadSessionId: string;
+}
+
+export interface CreateListingWithSessionRequest extends CreateListingRequest {
+  uploadSessionId?: string;
+}
+
+export const listingsApi = {
+  async getAll(params?: ListingsQueryParams): Promise<Listing[]> {
+    const response = await apiClient.get<Listing[]>("/listings", { params });
+    return response.data;
+  },
+
+  async getById(id: number): Promise<Listing> {
+    const response = await apiClient.get<Listing>(`/listings/${id}`);
+    return response.data;
+  },
+
+  async create(data: CreateListingWithSessionRequest): Promise<Listing> {
+    const response = await apiClient.post<{ listing: Listing }>("/listings", data);
+    return response.data.listing;
+  },
+
+  async update(id: number, data: UpdateListingRequest): Promise<Listing> {
+    const response = await apiClient.patch<Listing>(`/listings/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/listings/${id}`);
+  },
+
+  // Listing images
+  async getImages(listingId: number): Promise<ListingImage[]> {
+    const response = await apiClient.get<{ images: ListingImage[] }>(
+      `/listings/${listingId}/images`
+    );
+    return response.data.images;
+  },
+
+  async uploadImage(listingId: number, file: File): Promise<ListingImage> {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await apiClient.post<{ image: ListingImage }>(
+      `/listings/${listingId}/images`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data.image;
+  },
+
+  async deleteImage(listingId: number, imageId: number): Promise<void> {
+    await apiClient.delete(`/listings/${listingId}/images/${imageId}`);
+  },
+
+  // Pending image uploads (before listing creation)
+  async uploadPendingImage(
+    sessionId: string | "new",
+    file: File
+  ): Promise<UploadPendingImageResponse> {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await apiClient.post<UploadPendingImageResponse>(
+      `/uploads/${sessionId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async getPendingImages(sessionId: string): Promise<PendingImage[]> {
+    const response = await apiClient.get<{ images: PendingImage[] }>(
+      `/uploads/${sessionId}`
+    );
+    return response.data.images;
+  },
+
+  async deletePendingImage(sessionId: string, imageId: number): Promise<void> {
+    await apiClient.delete(`/uploads/${sessionId}/${imageId}`);
+  },
+};

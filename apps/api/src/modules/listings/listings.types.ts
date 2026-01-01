@@ -16,6 +16,13 @@ export type ListingResponse = Pick<
   | "landlordId"
 >;
 
+export type ListingSearchResponse = ListingResponse & {
+  isFeatured: boolean;
+  verificationStatus: "PENDING" | "APPROVED" | "REJECTED";
+  country: string | null;
+  postalCode: string | null;
+};
+
 export type CreateListingDTO = {
   title: string;
   description: string;
@@ -36,3 +43,44 @@ export type CreateListingDTO = {
 };
 
 export type UpdateListingDTO = Partial<CreateListingDTO>;
+
+export type SearchListingsParams = {
+  // Full-text search
+  q?: string;
+
+  // Filters
+  propertyType?: "apartment" | "house" | "studio" | "room";
+  city?: string;
+  region?: string;
+  country?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minBedrooms?: number;
+  maxBedrooms?: number;
+  minBathrooms?: number;
+  maxBathrooms?: number;
+  minArea?: number;
+  maxArea?: number;
+  available?: boolean;
+  isFeatured?: boolean;
+  verificationStatus?: "PENDING" | "APPROVED" | "REJECTED";
+
+  // Sort
+  sortBy?: "featured" | "newest" | "oldest" | "price_asc" | "price_desc" | "area_asc" | "area_desc";
+
+  // Pagination
+  page?: number;
+  limit?: number;
+};
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+};

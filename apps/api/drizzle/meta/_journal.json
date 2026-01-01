@@ -29,6 +29,27 @@
       "when": 1766185980032,
       "tag": "0003_yielding_morbius",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767135408513,
+      "tag": "0004_wandering_changeling",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767190112530,
+      "tag": "0005_petite_warstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1735689600000,
+      "tag": "0006_add_search_indexes",
+      "breakpoints": true
     }
   ]
 }

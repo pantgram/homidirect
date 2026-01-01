@@ -1,8 +1,14 @@
-import { eq, count } from "drizzle-orm";
+import { eq, count, isNull, and, lt } from "drizzle-orm";
 import { db } from "config/db";
 import { listingImages } from "./listingImages.model";
 import { uploadToR2, deleteFromR2, getKeyFromUrl } from "../../plugins/r2";
-import { ListingImageResponse, MAX_IMAGES_PER_LISTING } from "./listingImages.types";
+import {
+  ListingImageResponse,
+  PendingImageResponse,
+  MAX_IMAGES_PER_LISTING,
+  MAX_IMAGES_PER_SESSION,
+  PENDING_IMAGE_EXPIRY_HOURS,
+} from "./listingImages.types";
 import { ConflictError } from "../../utils/errors";
 
 export const ListingImageService = {
@@ -12,11 +18,32 @@ export const ListingImageService = {
         id: listingImages.id,
         url: listingImages.url,
         listingId: listingImages.listingId,
+        uploadSessionId: listingImages.uploadSessionId,
+        createdAt: listingImages.createdAt,
       })
       .from(listingImages)
       .where(eq(listingImages.listingId, listingId));
 
     return images;
+  },
+
+  async getImagesBySessionId(sessionId: string): Promise<PendingImageResponse[]> {
+    const images = await db
+      .select({
+        id: listingImages.id,
+        url: listingImages.url,
+        uploadSessionId: listingImages.uploadSessionId,
+        createdAt: listingImages.createdAt,
+      })
+      .from(listingImages)
+      .where(
+        and(
+          eq(listingImages.uploadSessionId, sessionId),
+          isNull(listingImages.listingId)
+        )
+      );
+
+    return images as PendingImageResponse[];
   },
 
   async getImageById(imageId: number): Promise<ListingImageResponse | null> {
@@ -25,6 +52,8 @@ export const ListingImageService = {
         id: listingImages.id,
         url: listingImages.url,
         listingId: listingImages.listingId,
+        uploadSessionId: listingImages.uploadSessionId,
+        createdAt: listingImages.createdAt,
       })
       .from(listingImages)
       .where(eq(listingImages.id, imageId))
@@ -38,6 +67,20 @@ export const ListingImageService = {
       .select({ count: count() })
       .from(listingImages)
       .where(eq(listingImages.listingId, listingId));
+
+    return result?.count ?? 0;
+  },
+
+  async getSessionImageCount(sessionId: string): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(listingImages)
+      .where(
+        and(
+          eq(listingImages.uploadSessionId, sessionId),
+          isNull(listingImages.listingId)
+        )
+      );
 
     return result?.count ?? 0;
   },
@@ -71,9 +114,82 @@ export const ListingImageService = {
         id: listingImages.id,
         url: listingImages.url,
         listingId: listingImages.listingId,
+        uploadSessionId: listingImages.uploadSessionId,
+        createdAt: listingImages.createdAt,
       });
 
     return newImage;
+  },
+
+  async uploadPendingImage(
+    sessionId: string,
+    fileBuffer: Buffer,
+    filename: string,
+    mimetype: string
+  ): Promise<PendingImageResponse> {
+    const currentCount = await this.getSessionImageCount(sessionId);
+    if (currentCount >= MAX_IMAGES_PER_SESSION) {
+      throw new ConflictError(
+        `Maximum of ${MAX_IMAGES_PER_SESSION} images per upload session reached`
+      );
+    }
+
+    const timestamp = Date.now();
+    const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const key = `pending/${sessionId}/${timestamp}-${sanitizedFilename}`;
+
+    const url = await uploadToR2(key, fileBuffer, mimetype);
+
+    const [newImage] = await db
+      .insert(listingImages)
+      .values({
+        url,
+        uploadSessionId: sessionId,
+      })
+      .returning({
+        id: listingImages.id,
+        url: listingImages.url,
+        uploadSessionId: listingImages.uploadSessionId,
+        createdAt: listingImages.createdAt,
+      });
+
+    return newImage as PendingImageResponse;
+  },
+
+  async associateImagesToListing(
+    sessionId: string,
+    listingId: number
+  ): Promise<number> {
+    const pendingImages = await this.getImagesBySessionId(sessionId);
+
+    if (pendingImages.length === 0) {
+      return 0;
+    }
+
+    const currentCount = await this.getImageCount(listingId);
+    const availableSlots = MAX_IMAGES_PER_LISTING - currentCount;
+
+    if (pendingImages.length > availableSlots) {
+      throw new ConflictError(
+        `Cannot associate ${pendingImages.length} images. Only ${availableSlots} slots available.`
+      );
+    }
+
+    const result = await db
+      .update(listingImages)
+      .set({
+        listingId,
+        uploadSessionId: null,
+      })
+      .where(
+        and(
+          eq(listingImages.uploadSessionId, sessionId),
+          isNull(listingImages.listingId)
+        )
+      )
+      .returning({ id: listingImages.id });
+
+    return result.length;
   },
 
   async deleteImage(imageId: number): Promise<boolean> {
@@ -91,5 +207,58 @@ export const ListingImageService = {
       .returning({ id: listingImages.id });
 
     return result.length > 0;
+  },
+
+  async deletePendingImage(imageId: number, sessionId: string): Promise<boolean> {
+    const image = await this.getImageById(imageId);
+    if (!image || image.uploadSessionId !== sessionId || image.listingId !== null) {
+      return false;
+    }
+
+    const key = getKeyFromUrl(image.url);
+    await deleteFromR2(key);
+
+    const result = await db
+      .delete(listingImages)
+      .where(eq(listingImages.id, imageId))
+      .returning({ id: listingImages.id });
+
+    return result.length > 0;
+  },
+
+  async cleanupExpiredPendingImages(): Promise<number> {
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() - PENDING_IMAGE_EXPIRY_HOURS);
+
+    const expiredImages = await db
+      .select({
+        id: listingImages.id,
+        url: listingImages.url,
+      })
+      .from(listingImages)
+      .where(
+        and(
+          isNull(listingImages.listingId),
+          lt(listingImages.createdAt, expiryDate)
+        )
+      );
+
+    for (const image of expiredImages) {
+      const key = getKeyFromUrl(image.url);
+      await deleteFromR2(key);
+    }
+
+    if (expiredImages.length > 0) {
+      await db
+        .delete(listingImages)
+        .where(
+          and(
+            isNull(listingImages.listingId),
+            lt(listingImages.createdAt, expiryDate)
+          )
+        );
+    }
+
+    return expiredImages.length;
   },
 };

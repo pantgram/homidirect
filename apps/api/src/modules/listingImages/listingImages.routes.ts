@@ -5,6 +5,8 @@ import { validateParams } from "@/plugins/validator";
 import {
   listingImageParamsSchema,
   deleteImageParamsSchema,
+  sessionParamsSchema,
+  deletePendingImageParamsSchema,
 } from "@/schemas/listingImage.schema";
 
 export async function listingImageRoutes(fastify: FastifyInstance) {
@@ -32,4 +34,34 @@ export async function listingImageRoutes(fastify: FastifyInstance) {
       verifyListingOwnership,
     ],
   }, ListingImageController.delete as any);
+}
+
+export async function pendingImageRoutes(fastify: FastifyInstance) {
+  // Get pending images by session ID - authenticated landlords only
+  fastify.get<{ Params: { sessionId: string } }>("/:sessionId", {
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateParams(sessionParamsSchema),
+    ],
+  }, ListingImageController.getBySessionId);
+
+  // Upload pending image - authenticated landlords only
+  // Use "new" as sessionId to generate a new session
+  fastify.post<{ Params: { sessionId: string } }>("/:sessionId", {
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateParams(sessionParamsSchema),
+    ],
+  }, ListingImageController.uploadPending as any);
+
+  // Delete pending image - authenticated landlords only
+  fastify.delete<{ Params: { sessionId: string; imageId: string } }>("/:sessionId/:imageId", {
+    preValidation: [
+      fastify.authenticate,
+      requireRole("LANDLORD"),
+      validateParams(deletePendingImageParamsSchema),
+    ],
+  }, ListingImageController.deletePending as any);
 }

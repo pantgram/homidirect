@@ -1,0 +1,289 @@
+import { useState, useCallback, useRef } from "react";
+import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { listingsApi, type PendingImage } from "@/api/listings";
+import { env } from "@/config/env";
+import { cn } from "@/lib/utils";
+
+interface ImageUploadProps {
+  sessionId: string | null;
+  onSessionIdChange: (sessionId: string) => void;
+  images: PendingImage[];
+  onImagesChange: (images: PendingImage[]) => void;
+  maxImages?: number;
+  disabled?: boolean;
+}
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export function ImageUpload({
+  sessionId,
+  onSessionIdChange,
+  images,
+  onImagesChange,
+  maxImages = 10,
+  disabled = false,
+}: ImageUploadProps) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
+
+  const validateFile = (file: File): string | null => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return t("imageUpload.invalidType");
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return t("imageUpload.fileTooLarge");
+    }
+    return null;
+  };
+
+  const uploadFile = async (file: File): Promise<PendingImage | null> => {
+    const error = validateFile(file);
+    if (error) {
+      toast({
+        title: t("imageUpload.uploadError"),
+        description: `${file.name}: ${error}`,
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    try {
+      const currentSessionId = sessionId || "new";
+      const response = await listingsApi.uploadPendingImage(
+        currentSessionId,
+        file
+      );
+
+      if (!sessionId) {
+        onSessionIdChange(response.uploadSessionId);
+      }
+
+      return response.image;
+    } catch (err: any) {
+      toast({
+        title: t("imageUpload.uploadError"),
+        description: err.response?.data?.message || t("imageUpload.uploadFailed"),
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleFiles = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const remainingSlots = maxImages - images.length;
+
+    if (fileArray.length > remainingSlots) {
+      toast({
+        title: t("imageUpload.tooManyImages"),
+        description: t("imageUpload.maxImagesReached").replace(
+          "{max}",
+          String(maxImages)
+        ),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingCount(fileArray.length);
+
+    const uploadPromises = fileArray.map((file) => uploadFile(file));
+    const results = await Promise.all(uploadPromises);
+    const successfulUploads = results.filter(
+      (img): img is PendingImage => img !== null
+    );
+
+    if (successfulUploads.length > 0) {
+      onImagesChange([...images, ...successfulUploads]);
+    }
+
+    setUploadingCount(0);
+  };
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      if (!disabled) {
+        setIsDragging(true);
+      }
+    },
+    [disabled]
+  );
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+
+      if (disabled) return;
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        await handleFiles(files);
+      }
+    },
+    [disabled, handleFiles]
+  );
+
+  const handleFileInputChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      await handleFiles(files);
+    }
+    // Reset the input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveImage = async (imageId: number) => {
+    if (!sessionId) return;
+
+    try {
+      await listingsApi.deletePendingImage(sessionId, imageId);
+      onImagesChange(images.filter((img) => img.id !== imageId));
+      toast({
+        title: t("imageUpload.imageRemoved"),
+        description: t("imageUpload.imageRemovedDesc"),
+      });
+    } catch (err: any) {
+      toast({
+        title: t("imageUpload.removeError"),
+        description:
+          err.response?.data?.message || t("imageUpload.removeFailed"),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getImageUrl = (url: string) => {
+    if (url.startsWith("http")) return url;
+    return `${env.apiUrl}${url}`;
+  };
+
+  const isUploading = uploadingCount > 0;
+  const canUploadMore = images.length < maxImages && !disabled;
+
+  return (
+    <div className="space-y-4">
+      {/* Upload Zone */}
+      <div
+        className={cn(
+          "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+          isDragging && "border-primary bg-primary/5",
+          !isDragging && !disabled && "border-border hover:border-primary",
+          disabled && "border-muted bg-muted/50 cursor-not-allowed",
+          canUploadMore && !disabled && "cursor-pointer"
+        )}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => canUploadMore && fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept={ALLOWED_TYPES.join(",")}
+          onChange={handleFileInputChange}
+          className="hidden"
+          disabled={disabled || !canUploadMore}
+        />
+
+        {isUploading ? (
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <p className="text-sm text-foreground">
+              {t("imageUpload.uploading")} ({uploadingCount}{" "}
+              {t("imageUpload.files")})
+            </p>
+          </div>
+        ) : (
+          <>
+            <Upload
+              className={cn(
+                "h-12 w-12 mx-auto mb-4",
+                canUploadMore ? "text-muted-foreground" : "text-muted"
+              )}
+            />
+            <p
+              className={cn(
+                "text-sm mb-1",
+                canUploadMore ? "text-foreground" : "text-muted-foreground"
+              )}
+            >
+              {canUploadMore
+                ? t("imageUpload.dragOrClick")
+                : t("imageUpload.maxReached")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("imageUpload.supportedFormats")} (max 5MB)
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {images.length}/{maxImages} {t("imageUpload.imagesUploaded")}
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Image Preview Grid */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {images.map((image, index) => (
+            <div
+              key={image.id}
+              className="relative group aspect-square rounded-lg overflow-hidden border border-border bg-muted"
+            >
+              <img
+                src={getImageUrl(image.url)}
+                alt={`Property image ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              {index === 0 && (
+                <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
+                  {t("imageUpload.primary")}
+                </span>
+              )}
+              {!disabled && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveImage(image.id);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {images.length === 0 && !isUploading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <ImageIcon className="h-4 w-4" />
+          <span>{t("imageUpload.noImages")}</span>
+        </div>
+      )}
+    </div>
+  );
+}

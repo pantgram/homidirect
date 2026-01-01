@@ -1,29 +1,77 @@
 import { useState, useEffect } from "react";
-import { Upload, FileCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { ImageUpload } from "@/components/listing/ImageUpload";
+import { useCreateListing } from "@/hooks/useListings";
+import type { PendingImage } from "@/api/listings";
+import type { PropertyType, CreateListingRequest } from "@/api";
+
+interface ListingFormData {
+  title: string;
+  description: string;
+  propertyType: PropertyType | "";
+  price: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  bedrooms: string;
+  bathrooms: string;
+  area: string;
+}
+
+const initialFormData: ListingFormData = {
+  title: "",
+  description: "",
+  propertyType: "",
+  price: "",
+  city: "",
+  postalCode: "",
+  country: "Greece",
+  bedrooms: "",
+  bathrooms: "",
+  area: "",
+};
 
 const ListProperty = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [images, setImages] = useState<File[]>([]);
-  const [verificationDoc, setVerificationDoc] = useState<File | null>(null);
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const createListing = useCreateListing();
+
+  const [formData, setFormData] = useState<ListingFormData>(initialFormData);
+  const [uploadSessionId, setUploadSessionId] = useState<string | null>(null);
+  const [images, setImages] = useState<PendingImage[]>([]);
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof ListingFormData, string>>>({});
+
+  const canAccess = user?.role === "LANDLORD" || user?.role === "ADMIN";
 
   useEffect(() => {
-    // Check if user is logged in and is a property owner
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const isPropertyOwner = localStorage.getItem("isPropertyOwner") === "true";
-
-    if (!isLoggedIn || !isPropertyOwner) {
+    if (!isAuthLoading && (!isAuthenticated || !canAccess)) {
       toast({
         title: t("listForm.accessDenied"),
         description: t("listForm.accessDeniedDesc"),
@@ -31,33 +79,127 @@ const ListProperty = () => {
       });
       navigate("/list-property-info");
     }
-  }, [navigate, toast, t]);
+  }, [isAuthenticated, canAccess, isAuthLoading, navigate, toast, t]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newImages = Array.from(e.target.files);
-      setImages([...images, ...newImages]);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+    // Clear error when user types
+    if (formErrors[id as keyof ListingFormData]) {
+      setFormErrors((prev) => ({ ...prev, [id]: undefined }));
     }
   };
 
-  const handleVerificationUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setVerificationDoc(e.target.files[0]);
+  const handleSelectChange = (field: keyof ListingFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = (): boolean => {
+    const errors: Partial<Record<keyof ListingFormData, string>> = {};
+
+    if (!formData.title.trim()) {
+      errors.title = t("listForm.validation.titleRequired");
+    }
+    if (!formData.propertyType) {
+      errors.propertyType = t("listForm.validation.typeRequired");
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      errors.price = t("listForm.validation.priceRequired");
+    }
+    if (!formData.city.trim()) {
+      errors.city = t("listForm.validation.cityRequired");
+    }
+    if (!formData.bedrooms) {
+      errors.bedrooms = t("listForm.validation.bedroomsRequired");
+    }
+    if (!formData.bathrooms) {
+      errors.bathrooms = t("listForm.validation.bathroomsRequired");
+    }
+    if (!formData.area || parseFloat(formData.area) <= 0) {
+      errors.area = t("listForm.validation.areaRequired");
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: t("listForm.listed"),
-      description: t("listForm.listedDesc"),
-    });
+
+    if (!validateForm()) {
+      toast({
+        title: t("listForm.validation.error"),
+        description: t("listForm.validation.fixErrors"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (images.length === 0) {
+      toast({
+        title: t("listForm.validation.imagesRequired"),
+        description: t("listForm.validation.addImages"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const listingData: CreateListingRequest & { uploadSessionId?: string } = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      propertyType: formData.propertyType as PropertyType,
+      price: parseFloat(formData.price),
+      city: formData.city.trim(),
+      postalCode: formData.postalCode.trim() || undefined,
+      country: formData.country.trim() || "Greece",
+      bedrooms: parseInt(formData.bedrooms, 10),
+      bathrooms: parseInt(formData.bathrooms, 10),
+      area: parseFloat(formData.area),
+      uploadSessionId: uploadSessionId || undefined,
+    };
+
+    try {
+      const newListing = await createListing.mutateAsync(listingData);
+      toast({
+        title: t("listForm.listed"),
+        description: t("listForm.listedDesc"),
+      });
+      navigate(`/listings/${newListing.id}/verification`);
+    } catch (err: any) {
+      toast({
+        title: t("listForm.error"),
+        description: err.response?.data?.message || t("listForm.errorDesc"),
+        variant: "destructive",
+      });
+    }
   };
+
+  // Show loading state while checking auth
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="container mx-auto px-4 py-12 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+      </div>
+    );
+  }
+
+  // Don't render form if user doesn't have access
+  if (!isAuthenticated || !canAccess) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="max-w-3xl mx-auto mb-8">
@@ -73,9 +215,7 @@ const ListProperty = () => {
         <Card className="max-w-3xl mx-auto">
           <CardHeader>
             <CardTitle>{t("listForm.propertyDetails")}</CardTitle>
-            <CardDescription>
-              {t("listForm.propertyDetailsDesc")}
-            </CardDescription>
+            <CardDescription>{t("listForm.propertyDetailsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,27 +225,53 @@ const ListProperty = () => {
                   <Label htmlFor="title">{t("listForm.propertyTitle")}</Label>
                   <Input
                     id="title"
-                    placeholder="e.g., Modern 2BR Apartment in Downtown"
-                    required
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder={t("listForm.titlePlaceholder")}
+                    className={formErrors.title ? "border-destructive" : ""}
                   />
+                  {formErrors.title && (
+                    <p className="text-sm text-destructive mt-1">
+                      {formErrors.title}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="type">{t("listForm.propertyType")}</Label>
-                    <Select required>
-                      <SelectTrigger id="type">
+                    <Label htmlFor="propertyType">{t("listForm.propertyType")}</Label>
+                    <Select
+                      value={formData.propertyType}
+                      onValueChange={(value) =>
+                        handleSelectChange("propertyType", value)
+                      }
+                    >
+                      <SelectTrigger
+                        id="propertyType"
+                        className={formErrors.propertyType ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder={t("common.selectType")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                        <SelectItem value="house">House</SelectItem>
-                        <SelectItem value="studio">Studio</SelectItem>
-                        <SelectItem value="penthouse">Penthouse</SelectItem>
-                        <SelectItem value="townhouse">Townhouse</SelectItem>
-                        <SelectItem value="loft">Loft</SelectItem>
+                        <SelectItem value="apartment">
+                          {t("listForm.types.apartment")}
+                        </SelectItem>
+                        <SelectItem value="house">
+                          {t("listForm.types.house")}
+                        </SelectItem>
+                        <SelectItem value="studio">
+                          {t("listForm.types.studio")}
+                        </SelectItem>
+                        <SelectItem value="room">
+                          {t("listForm.types.room")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.propertyType && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.propertyType}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -113,29 +279,76 @@ const ListProperty = () => {
                     <Input
                       id="price"
                       type="number"
-                      placeholder="2,500"
-                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      placeholder="1200"
+                      className={formErrors.price ? "border-destructive" : ""}
+                    />
+                    {formErrors.price && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.price}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="city">{t("listForm.city")}</Label>
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      placeholder={t("listForm.cityPlaceholder")}
+                      className={formErrors.city ? "border-destructive" : ""}
+                    />
+                    {formErrors.city && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.city}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="postalCode">{t("listForm.postalCode")}</Label>
+                    <Input
+                      id="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      placeholder="10680"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="location">{t("listForm.location")}</Label>
+                  <Label htmlFor="country">{t("listForm.country")}</Label>
                   <Input
-                    id="location"
-                    placeholder="Full address"
-                    required
+                    id="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    placeholder="Greece"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="bedrooms">{t("listForm.bedrooms")}</Label>
-                    <Select required>
-                      <SelectTrigger id="bedrooms">
+                    <Select
+                      value={formData.bedrooms}
+                      onValueChange={(value) =>
+                        handleSelectChange("bedrooms", value)
+                      }
+                    >
+                      <SelectTrigger
+                        id="bedrooms"
+                        className={formErrors.bedrooms ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
                         <SelectItem value="1">1</SelectItem>
                         <SelectItem value="2">2</SelectItem>
                         <SelectItem value="3">3</SelectItem>
@@ -143,22 +356,39 @@ const ListProperty = () => {
                         <SelectItem value="5">5+</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.bedrooms && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.bedrooms}
+                      </p>
+                    )}
                   </div>
 
                   <div>
                     <Label htmlFor="bathrooms">{t("listForm.bathrooms")}</Label>
-                    <Select required>
-                      <SelectTrigger id="bathrooms">
+                    <Select
+                      value={formData.bathrooms}
+                      onValueChange={(value) =>
+                        handleSelectChange("bathrooms", value)
+                      }
+                    >
+                      <SelectTrigger
+                        id="bathrooms"
+                        className={formErrors.bathrooms ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="1.5">1.5</SelectItem>
                         <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="2.5">2.5</SelectItem>
-                        <SelectItem value="3">3+</SelectItem>
+                        <SelectItem value="3">3</SelectItem>
+                        <SelectItem value="4">4+</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formErrors.bathrooms && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.bathrooms}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -166,9 +396,18 @@ const ListProperty = () => {
                     <Input
                       id="area"
                       type="number"
-                      placeholder="1200"
-                      required
+                      min="0"
+                      step="0.1"
+                      value={formData.area}
+                      onChange={handleInputChange}
+                      placeholder="85"
+                      className={formErrors.area ? "border-destructive" : ""}
                     />
+                    {formErrors.area && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.area}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -176,137 +415,60 @@ const ListProperty = () => {
                   <Label htmlFor="description">{t("listForm.description")}</Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe your property, amenities, nearby facilities..."
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    placeholder={t("listForm.descriptionPlaceholder")}
                     className="min-h-[120px]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="amenities">{t("listForm.amenities")}</Label>
-                  <Input
-                    id="amenities"
-                    placeholder="e.g., Parking, Pool, Gym, Pet-friendly"
                   />
                 </div>
               </div>
 
               {/* Image Upload */}
               <div className="space-y-4">
-                <Label>{t("listForm.propertyImages")}</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload" className="cursor-pointer">
-                    <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-sm text-foreground mb-1">
-                      {t("listForm.clickUpload")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t("listForm.uploadDesc")}
-                    </p>
-                  </label>
-                </div>
-                {images.length > 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    {images.length} {t("listForm.imagesSelected")}
+                <div>
+                  <Label>{t("listForm.propertyImages")}</Label>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t("listForm.imagesHint")}
                   </p>
+                </div>
+                <ImageUpload
+                  sessionId={uploadSessionId}
+                  onSessionIdChange={setUploadSessionId}
+                  images={images}
+                  onImagesChange={setImages}
+                  maxImages={10}
+                  disabled={createListing.isPending}
+                />
+              </div>
+
+              {/* Info about verification */}
+              <Alert>
+                <AlertDescription>
+                  {t("listForm.verificationNote")}
+                </AlertDescription>
+              </Alert>
+
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={createListing.isPending}
+              >
+                {createListing.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("listForm.submitting")}
+                  </>
+                ) : (
+                  t("listForm.submitButton")
                 )}
-              </div>
-
-              {/* Property Verification */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Label>{t("listForm.verification")}</Label>
-                  <span className="text-xs text-accent font-medium">{t("listForm.verificationRequired")}</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {t("listForm.verificationDesc")}
-                </p>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-accent transition-colors cursor-pointer">
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    onChange={handleVerificationUpload}
-                    className="hidden"
-                    id="verification-upload"
-                    required
-                  />
-                  <label htmlFor="verification-upload" className="cursor-pointer">
-                    <FileCheck className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-sm text-foreground mb-1">
-                      {t("listForm.clickVerification")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {t("listForm.verificationFileDesc")}
-                    </p>
-                  </label>
-                </div>
-                {verificationDoc && (
-                  <div className="flex items-center gap-2 text-sm text-accent">
-                    <FileCheck className="h-4 w-4" />
-                    <span>{verificationDoc.name}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Contact Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">
-                  {t("listForm.contactInfo")}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">{t("listForm.yourName")}</Label>
-                    <Input id="name" placeholder="John Doe" required />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">{t("auth.email")}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">{t("listForm.phone")}</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+1 (555) 123-4567"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="available">{t("listForm.availableFrom")}</Label>
-                    <Input id="available" type="date" required />
-                  </div>
-                </div>
-              </div>
-
-              <Button type="submit" className="w-full" size="lg">
-                {t("listForm.submitButton")}
               </Button>
             </form>
           </CardContent>
         </Card>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border mt-20">
-        <div className="container mx-auto px-4 py-8">
-          <p className="text-center text-muted-foreground text-sm">
-            {t("common.footer")}
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

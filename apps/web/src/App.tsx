@@ -4,10 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import SearchResults from "./pages/SearchResults";
 import ListProperty from "./pages/ListProperty";
 import ListPropertyInfo from "./pages/ListPropertyInfo";
+import ListingVerification from "./pages/ListingVerification";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -19,8 +21,9 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <TooltipProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -29,6 +32,7 @@ const App = () => (
             <Route path="/search" element={<SearchResults />} />
             <Route path="/list-property-info" element={<ListPropertyInfo />} />
             <Route path="/list-property" element={<ListProperty />} />
+            <Route path="/listings/:listingId/verification" element={<ListingVerification />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -39,7 +43,8 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

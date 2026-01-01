@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ListingService } from "./listings.service";
-import { CreateListingDTO, UpdateListingDTO } from "./listings.types";
+import { CreateListingDTO, UpdateListingDTO, SearchListingsParams } from "./listings.types";
 import { NotFoundError } from "@/utils/errors";
 
 export const ListingController = {
@@ -24,11 +24,12 @@ export const ListingController = {
   },
 
   async create(
-    request: FastifyRequest<{ Body: CreateListingDTO }>,
+    request: FastifyRequest<{ Body: CreateListingDTO & { uploadSessionId?: string } }>,
     reply: FastifyReply
   ) {
-    const listing = await ListingService.createListing(request.body);
-    return reply.code(201).send({ listing: listing });
+    const { uploadSessionId, ...listingData } = request.body;
+    const listing = await ListingService.createListing(listingData, uploadSessionId);
+    return reply.code(201).send({ listing });
   },
 
   async update(
@@ -57,5 +58,22 @@ export const ListingController = {
     }
 
     return reply.code(204).send();
+  },
+
+  async search(
+    request: FastifyRequest<{ Querystring: SearchListingsParams }>,
+    reply: FastifyReply
+  ) {
+    const params = request.query;
+    // Check if user is authenticated (user object exists from optional auth)
+    const isAuthenticated = !!(request as any).user?.id;
+
+    const result = await ListingService.searchListings(params, isAuthenticated);
+    return reply.code(200).send(result);
+  },
+
+  async getCities(request: FastifyRequest, reply: FastifyReply) {
+    const cities = await ListingService.getDistinctCities();
+    return reply.code(200).send({ cities });
   },
 };

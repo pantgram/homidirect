@@ -18,7 +18,12 @@ export function buildApp() {
   });
 
   // Register security plugins
-  fastify.register(cors);
+  fastify.register(cors, {
+    origin: config.nodeEnv === "development"
+      ? true
+      : config.frontendUrl,
+    credentials: true,
+  });
   fastify.register(helmet);
 
   // Register multipart for file uploads
@@ -26,6 +31,7 @@ export function buildApp() {
     limits: {
       fileSize: MAX_FILE_SIZE,
     },
+    attachFieldsToBody: false,
   });
 
   // Register rate limiting (global defaults)
