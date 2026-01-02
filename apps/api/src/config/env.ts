@@ -16,4 +16,11 @@ export const config = {
     publicUrl: process.env.R2_PUBLIC_URL!, // Public URL for serving images (e.g., https://pub-xxx.r2.dev)
     endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`, // API endpoint for uploads
   },
+  email: {
+    smtpHost: process.env.SMTP_HOST || "smtp.zoho.com",
+    smtpPort: parseInt(process.env.SMTP_PORT || "465"),
+    smtpUser: process.env.SMTP_USER,
+    smtpPass: process.env.SMTP_PASS,
+    emailFrom: process.env.EMAIL_FROM || "donotreply@homidirect.com",
+  },
 };

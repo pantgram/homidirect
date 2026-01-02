@@ -94,6 +94,15 @@ export const translations = {
     "auth.invalidResetLinkDesc":
       "This password reset link is invalid or has expired. Please request a new one.",
     "auth.requestNewLink": "Request New Link",
+    "auth.enterToken": "Enter Reset Token",
+    "auth.enterTokenDesc": "Enter the token we sent to your email address.",
+    "auth.tokenSentTo": "We sent a reset token to",
+    "auth.resetToken": "Reset Token",
+    "auth.tokenPlaceholder": "Paste your token here",
+    "auth.verifyToken": "Continue",
+    "auth.resendToken": "Resend Token",
+    "auth.tokenRequired": "Please enter the token from your email",
+    "auth.back": "Back",
 
     // User Menu
     "userMenu.myListings": "My Listings",
@@ -542,6 +551,18 @@ export const translations = {
 
     // Common
     "common.cancel": "Cancel",
+
+    // Location Search
+    "locationSearch.selectCity": "Select city...",
+    "locationSearch.searchCities": "Search cities, neighborhoods...",
+    "locationSearch.noCitiesFound": "No locations found.",
+    "locationSearch.selectCountry": "Select country...",
+    "locationSearch.searchCountries": "Search countries...",
+    "locationSearch.noCountriesFound": "No countries found.",
+    "locationSearch.typeToSearch": "Type to search...",
+    "locationSearch.searching": "Searching...",
+    "locationSearch.validation.invalidCity": "Please select a valid city from the list",
+    "locationSearch.validation.invalidCountry": "Please select a valid country from the list",
   },
   el: {
     // Navigation
@@ -626,6 +647,15 @@ export const translations = {
     "auth.invalidResetLinkDesc":
       "Αυτός ο σύνδεσμος επαναφοράς κωδικού είναι μη έγκυρος ή έχει λήξει. Ζητήστε έναν νέο.",
     "auth.requestNewLink": "Αίτηση Νέου Συνδέσμου",
+    "auth.enterToken": "Εισάγετε τον Κωδικό Επαναφοράς",
+    "auth.enterTokenDesc": "Εισάγετε τον κωδικό που στείλαμε στο email σας.",
+    "auth.tokenSentTo": "Στείλαμε έναν κωδικό επαναφοράς στο",
+    "auth.resetToken": "Κωδικός Επαναφοράς",
+    "auth.tokenPlaceholder": "Επικολλήστε τον κωδικό εδώ",
+    "auth.verifyToken": "Συνέχεια",
+    "auth.resendToken": "Επαναποστολή Κωδικού",
+    "auth.tokenRequired": "Παρακαλώ εισάγετε τον κωδικό από το email σας",
+    "auth.back": "Πίσω",
 
     // User Menu
     "userMenu.myListings": "Οι Καταχωρήσεις μου",
@@ -1092,6 +1122,18 @@ export const translations = {
 
     // Common
     "common.cancel": "Ακύρωση",
+
+    // Location Search
+    "locationSearch.selectCity": "Επιλέξτε πόλη...",
+    "locationSearch.searchCities": "Αναζήτηση πόλεων, γειτονιών...",
+    "locationSearch.noCitiesFound": "Δεν βρέθηκαν τοποθεσίες.",
+    "locationSearch.selectCountry": "Επιλέξτε χώρα...",
+    "locationSearch.searchCountries": "Αναζήτηση χωρών...",
+    "locationSearch.noCountriesFound": "Δεν βρέθηκαν χώρες.",
+    "locationSearch.typeToSearch": "Πληκτρολογήστε για αναζήτηση...",
+    "locationSearch.searching": "Αναζήτηση...",
+    "locationSearch.validation.invalidCity": "Παρακαλώ επιλέξτε έγκυρη πόλη από τη λίστα",
+    "locationSearch.validation.invalidCountry": "Παρακαλώ επιλέξτε έγκυρη χώρα από τη λίστα",
   },
 };
 

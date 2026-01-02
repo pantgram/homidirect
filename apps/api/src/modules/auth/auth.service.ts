@@ -2,6 +2,7 @@ import { db } from "config/db";
 import { NewUser, users } from "@/modules/users/users.model";
 import { eq, and, gt } from "drizzle-orm";
 import { hashPassword, comparePasswords } from "utils/hash";
+import { sendPasswordResetEmail } from "utils/email";
 import { FastifyInstance } from "fastify";
 import crypto from "crypto";
 
@@ -89,7 +90,7 @@ export const AuthService = {
       .select({ id: users.id, email: users.email })
       .from(users)
       .where(eq(users.email, email));
-    console.log(user);
+
     if (!user) {
       // Return success even if user not found to prevent email enumeration
       return {
@@ -116,12 +117,12 @@ export const AuthService = {
       })
       .where(eq(users.id, user.id));
 
-    // Return the plain token (to be sent via email)
-    // In production, you would send this via email instead of returning it
+    // Send password reset email
+    await sendPasswordResetEmail(user.email, resetToken);
+
     return {
       message:
         "If an account exists with this email, a reset link has been sent",
-      resetToken, // Only for development - remove in production after email service is set up
     };
   },
 

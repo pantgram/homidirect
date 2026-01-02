@@ -31,9 +31,12 @@ import {
   useUploadListingImage,
   useDeleteListingImage,
 } from "@/hooks/useListings";
+import { LocationSearch, CountrySearch } from "@/components/ui/location-search";
+import { getCountryCode } from "@/api/geoapify";
 import { env } from "@/config/env";
 import { cn } from "@/lib/utils";
 import type { PropertyType, UpdateListingRequest, ListingImage } from "@/api";
+import type { LocationResult } from "@/api/geoapify";
 
 interface ListingFormData {
   title: string;
@@ -43,6 +46,7 @@ interface ListingFormData {
   city: string;
   postalCode: string;
   country: string;
+  countryCode: string;
   bedrooms: string;
   bathrooms: string;
   area: string;
@@ -59,7 +63,7 @@ const EditListing = () => {
 
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const { data: listing, isLoading: isListingLoading } = useListing(listingId);
@@ -76,7 +80,8 @@ const EditListing = () => {
     price: "",
     city: "",
     postalCode: "",
-    country: "Greece",
+    country: "Ελλάδα",
+    countryCode: "gr",
     bedrooms: "",
     bathrooms: "",
     area: "",
@@ -100,6 +105,7 @@ const EditListing = () => {
   // Populate form with existing listing data
   useEffect(() => {
     if (listing) {
+      const countryCode = getCountryCode(listing.country || "Greece") || "gr";
       setFormData({
         title: listing.title || "",
         description: listing.description || "",
@@ -107,7 +113,8 @@ const EditListing = () => {
         price: listing.price?.toString() || "",
         city: listing.city || "",
         postalCode: listing.postalCode || "",
-        country: listing.country || "Greece",
+        country: listing.country || "Ελλάδα",
+        countryCode,
         bedrooms: listing.bedrooms?.toString() || "",
         bathrooms: listing.bathrooms?.toString() || "",
         area: listing.area?.toString() || "",
@@ -489,13 +496,57 @@ const EditListing = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <Label htmlFor="country">{t("listForm.country")}</Label>
+                    <CountrySearch
+                      value={formData.country}
+                      onValueChange={(value, code) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          country: value,
+                          countryCode: code || "",
+                          city: "", // Reset city when country changes
+                        }));
+                        if (formErrors.country) {
+                          setFormErrors((prev) => ({ ...prev, country: undefined }));
+                        }
+                      }}
+                      placeholder={t("locationSearch.selectCountry")}
+                      searchPlaceholder={t("locationSearch.searchCountries")}
+                      emptyMessage={t("locationSearch.noCountriesFound")}
+                      error={!!formErrors.country}
+                      lang={language === "el" ? "el" : "en"}
+                    />
+                    {formErrors.country && (
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.country}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
                     <Label htmlFor="city">{t("listForm.city")}</Label>
-                    <Input
-                      id="city"
+                    <LocationSearch
                       value={formData.city}
-                      onChange={handleInputChange}
-                      placeholder={t("listForm.cityPlaceholder")}
-                      className={formErrors.city ? "border-destructive" : ""}
+                      onValueChange={(value) => {
+                        setFormData((prev) => ({ ...prev, city: value }));
+                        if (formErrors.city) {
+                          setFormErrors((prev) => ({ ...prev, city: undefined }));
+                        }
+                      }}
+                      onLocationSelect={(location: LocationResult) => {
+                        if (location.postalCode) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            postalCode: location.postalCode || prev.postalCode,
+                          }));
+                        }
+                      }}
+                      placeholder={t("locationSearch.selectCity")}
+                      searchPlaceholder={t("locationSearch.searchCities")}
+                      emptyMessage={t("locationSearch.noCitiesFound")}
+                      error={!!formErrors.city}
+                      countryCode={formData.countryCode}
+                      lang={language === "el" ? "el" : "en"}
                     />
                     {formErrors.city && (
                       <p className="text-sm text-destructive mt-1">
@@ -503,27 +554,17 @@ const EditListing = () => {
                       </p>
                     )}
                   </div>
-
-                  <div>
-                    <Label htmlFor="postalCode">
-                      {t("listForm.postalCode")}
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      value={formData.postalCode}
-                      onChange={handleInputChange}
-                      placeholder="10680"
-                    />
-                  </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="country">{t("listForm.country")}</Label>
+                  <Label htmlFor="postalCode">
+                    {t("listForm.postalCode")}
+                  </Label>
                   <Input
-                    id="country"
-                    value={formData.country}
+                    id="postalCode"
+                    value={formData.postalCode}
                     onChange={handleInputChange}
-                    placeholder="Greece"
+                    placeholder="10680"
                   />
                 </div>
 
