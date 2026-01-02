@@ -27,8 +27,8 @@ export const registerSchema = z.object({
     .max(100, "Last name must not exceed 100 characters"),
   email: emailSchema,
   password: passwordSchema,
-  role: z.enum(["LANDLORD", "TENANT"], {
-    errorMap: () => ({ message: "Role must be either LANDLORD or TENANT" }),
+  role: z.enum(["LANDLORD", "TENANT", "BOTH"], {
+    errorMap: () => ({ message: "Role must be LANDLORD, TENANT, or BOTH" }),
   }),
 });
 

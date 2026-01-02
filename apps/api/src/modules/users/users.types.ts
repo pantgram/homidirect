@@ -1,7 +1,8 @@
 export interface UpdateUser {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
+  role?: "LANDLORD" | "TENANT" | "BOTH";
 }
 
 export interface UserResponse {
@@ -17,6 +18,6 @@ export interface UserWithRole {
   firstName: string;
   lastName: string;
   email: string;
-  role: "LANDLORD" | "TENANT" | "ADMIN";
+  role: "LANDLORD" | "TENANT" | "BOTH" | "ADMIN";
   createdAt: Date;
 }

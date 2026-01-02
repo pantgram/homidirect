@@ -32,36 +32,45 @@ export const listingsApi = {
     return response.data;
   },
 
-  async getMyListings(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<ListingSearchResult>> {
-    const response = await apiClient.get<PaginatedResponse<ListingSearchResult>>(
-      "/listings/my-listings",
-      { params }
-    );
+  async getMyListings(params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<PaginatedResponse<ListingSearchResult>> {
+    const response = await apiClient.get<
+      PaginatedResponse<ListingSearchResult>
+    >("/listings/my-listings", { params });
     return response.data;
   },
 
   async search(
     params?: SearchListingsParams
   ): Promise<PaginatedResponse<ListingSearchResult>> {
-    const response = await apiClient.get<PaginatedResponse<ListingSearchResult>>(
-      "/listings/search",
-      { params }
-    );
+    const response = await apiClient.get<
+      PaginatedResponse<ListingSearchResult>
+    >("/listings/search", { params });
     return response.data;
   },
 
   async getById(id: number): Promise<Listing> {
-    const response = await apiClient.get<{ listing: Listing }>(`/listings/${id}`);
+    const response = await apiClient.get<{ listing: Listing }>(
+      `/listings/${id}`
+    );
     return response.data.listing;
   },
 
   async create(data: CreateListingWithSessionRequest): Promise<Listing> {
-    const response = await apiClient.post<{ listing: Listing }>("/listings", data);
+    const response = await apiClient.post<{ listing: Listing }>(
+      "/listings",
+      data
+    );
     return response.data.listing;
   },
 
   async update(id: number, data: UpdateListingRequest): Promise<Listing> {
-    const response = await apiClient.patch<{ listing: Listing }>(`/listings/${id}`, data);
+    const response = await apiClient.patch<{ listing: Listing }>(
+      `/listings/${id}`,
+      data
+    );
     return response.data.listing;
   },
 

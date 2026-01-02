@@ -57,6 +57,13 @@
       "when": 1767265321569,
       "tag": "0007_cynical_salo",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1767346467428,
+      "tag": "0008_many_sue_storm",
+      "breakpoints": true
     }
   ]
 }

@@ -9,9 +9,11 @@ import {
   asc,
   sql,
   SQL,
+  inArray,
 } from "drizzle-orm";
 import { db } from "config/db";
 import { listings } from "./listings.model";
+import { listingImages } from "../listingImages/listingImages.model";
 import {
   CreateListingDTO,
   UpdateListingDTO,
@@ -19,6 +21,7 @@ import {
   ListingSearchResponse,
   SearchListingsParams,
   PaginatedResponse,
+  ListingImageBasic,
 } from "./listings.types";
 import { ListingImageService } from "../listingImages/listingImages.service";
 
@@ -314,10 +317,20 @@ export const ListingService = {
       .limit(limit)
       .offset(offset);
 
+    // Fetch primary images for all listings in one query
+    const listingIds = results.map((r) => r.id);
+    const primaryImagesMap = await this.getPrimaryImagesForListings(listingIds);
+
+    // Attach primary images to results
+    const resultsWithImages: ListingSearchResponse[] = results.map((listing) => ({
+      ...listing,
+      primaryImage: primaryImagesMap.get(listing.id) || null,
+    }));
+
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: results,
+      data: resultsWithImages,
       pagination: {
         page,
         limit,
@@ -337,6 +350,35 @@ export const ListingService = {
       .orderBy(asc(listings.city));
 
     return result.map((r) => r.city);
+  },
+
+  async getPrimaryImagesForListings(
+    listingIds: number[]
+  ): Promise<Map<number, ListingImageBasic>> {
+    if (listingIds.length === 0) {
+      return new Map();
+    }
+
+    // Get the first image for each listing (ordered by createdAt)
+    const images = await db
+      .select({
+        id: listingImages.id,
+        url: listingImages.url,
+        listingId: listingImages.listingId,
+        createdAt: listingImages.createdAt,
+      })
+      .from(listingImages)
+      .where(inArray(listingImages.listingId, listingIds));
+
+    // Group by listingId and take the first one (oldest = primary)
+    const imageMap = new Map<number, ListingImageBasic>();
+    for (const img of images) {
+      if (img.listingId !== null && !imageMap.has(img.listingId)) {
+        imageMap.set(img.listingId, img);
+      }
+    }
+
+    return imageMap;
   },
 
   async getListingsByLandlordId(
@@ -379,10 +421,20 @@ export const ListingService = {
       .limit(limit)
       .offset(offset);
 
+    // Fetch primary images for all listings in one query
+    const listingIds = results.map((r) => r.id);
+    const primaryImagesMap = await this.getPrimaryImagesForListings(listingIds);
+
+    // Attach primary images to results
+    const resultsWithImages: ListingSearchResponse[] = results.map((listing) => ({
+      ...listing,
+      primaryImage: primaryImagesMap.get(listing.id) || null,
+    }));
+
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: results,
+      data: resultsWithImages,
       pagination: {
         page,
         limit,

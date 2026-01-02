@@ -63,7 +63,7 @@ export const UserService = {
     return newUser;
   },
 
-  async updateUser(id: number, data: UpdateUser): Promise<UserResponse | null> {
+  async updateUser(id: number, data: UpdateUser): Promise<UserWithRole | null> {
     const [updatedUser] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })
@@ -73,6 +73,7 @@ export const UserService = {
         firstName: users.firstName,
         lastName: users.lastName,
         email: users.email,
+        role: users.role,
         createdAt: users.createdAt,
       });
 

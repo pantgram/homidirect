@@ -219,7 +219,7 @@ export const translations = {
     "hero.apartments": "Apartments",
     "hero.houses": "Houses",
     "hero.studios": "Studios",
-    "hero.sharedSpaces": "Shared Spaces",
+    "hero.room": "Rooms",
     "hero.activeListings": "Active Listings",
     "hero.propertyOwners": "Property Owners",
     "hero.agentFees": "Agent Fees",
@@ -318,6 +318,8 @@ export const translations = {
     "search.bathrooms": "Bathrooms",
     "search.any": "Any",
     "search.priceRange": "Price Range",
+    "search.minPrice": "Min Price",
+    "search.maxPrice": "Max Price",
     "search.results": "Search Results",
     "search.foundProperties": "Found {count} properties in {location}",
     "search.sortBy": "Sort by",
@@ -342,7 +344,8 @@ export const translations = {
     "listingDetail.back": "Back",
     "listingDetail.backToSearch": "Back to Search",
     "listingDetail.notFound": "Listing Not Found",
-    "listingDetail.notFoundDesc": "The listing you're looking for doesn't exist or has been removed.",
+    "listingDetail.notFoundDesc":
+      "The listing you're looking for doesn't exist or has been removed.",
     "listingDetail.errorLoading": "Failed to load listing. Please try again.",
     "listingDetail.available": "Available",
     "listingDetail.unavailable": "Not Available",
@@ -363,11 +366,13 @@ export const translations = {
     "listingDetail.monthlyRent": "Monthly Rent",
     "listingDetail.contactOwner": "Contact Owner",
     "listingDetail.requestViewing": "Request Viewing",
-    "listingDetail.directContact": "Connect directly with the property owner - no agents, no fees.",
+    "listingDetail.directContact":
+      "Connect directly with the property owner - no agents, no fees.",
     "listingDetail.quickStats": "Quick Stats",
     "listingDetail.pricePerSqm": "Price per m²",
     "listingDetail.safetyTip": "Safety Tip",
-    "listingDetail.safetyTipDesc": "Always visit the property before making any payments. Never send money without signing a proper rental agreement.",
+    "listingDetail.safetyTipDesc":
+      "Always visit the property before making any payments. Never send money without signing a proper rental agreement.",
 
     // Privacy Policy
     "privacy.title": "Privacy Policy",
@@ -448,14 +453,50 @@ export const translations = {
     "contact.messageSentDesc":
       "We've received your message and will get back to you soon.",
 
+    // My Profile
+    "profile.title": "My Profile",
+    "profile.subtitle": "Manage your account information",
+    "profile.personalInfo": "Personal Information",
+    "profile.personalInfoDesc": "Update your personal details",
+    "profile.firstName": "First Name",
+    "profile.lastName": "Last Name",
+    "profile.email": "Email",
+    "profile.role": "Account Type",
+    "profile.memberSince": "Member Since",
+    "profile.saveChanges": "Save Changes",
+    "profile.saving": "Saving...",
+    "profile.updateSuccess": "Profile updated successfully",
+    "profile.updateError": "Failed to update profile. Please try again.",
+    "profile.deleteAccount": "Delete Account",
+    "profile.deleteAccountDesc":
+      "Permanently delete your account and all associated data",
+    "profile.deleteConfirmTitle": "Delete Account",
+    "profile.deleteConfirmDesc":
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+    "profile.deleting": "Deleting...",
+    "profile.deleteSuccess": "Account deleted successfully",
+    "profile.deleteError": "Failed to delete account. Please try again.",
+    "profile.dangerZone": "Danger Zone",
+    "profile.cancel": "Cancel",
+    "profile.tenant": "Tenant",
+    "profile.landlord": "Property Owner",
+    "profile.both": "Tenant & Property Owner",
+    "profile.admin": "Administrator",
+    "profile.editRole": "Change",
+    "profile.roleDesc": "Select your account type(s)",
+    "profile.tenantDesc": "Looking for rental properties",
+    "profile.landlordDesc": "Want to list properties for rent",
+
     // My Listings
     "myListings.title": "My Listings",
     "myListings.subtitle": "Manage your property listings",
     "myListings.noListings": "You haven't listed any properties yet.",
     "myListings.createFirst": "Create Your First Listing",
-    "myListings.errorLoading": "Failed to load your listings. Please try again.",
+    "myListings.errorLoading":
+      "Failed to load your listings. Please try again.",
     "myListings.loginRequired": "Please log in to view your listings.",
-    "myListings.landlordRequired": "Only property owners can view their listings.",
+    "myListings.landlordRequired":
+      "Only property owners can view their listings.",
     "myListings.edit": "Edit",
     "myListings.delete": "Delete",
     "myListings.confirmDelete": "Are you sure you want to delete this listing?",
@@ -466,6 +507,25 @@ export const translations = {
     "myListings.pending": "Pending Verification",
     "myListings.verified": "Verified",
     "myListings.rejected": "Verification Rejected",
+
+    // Edit Listing
+    "editListing.title": "Edit Listing",
+    "editListing.subtitle": "Update your property listing details below.",
+    "editListing.backToListings": "Back to My Listings",
+    "editListing.saveChanges": "Save Changes",
+    "editListing.saving": "Saving...",
+    "editListing.updated": "Listing Updated",
+    "editListing.updatedDesc": "Your listing has been updated successfully.",
+    "editListing.error": "Error",
+    "editListing.errorDesc": "Failed to update listing. Please try again.",
+    "editListing.notOwner": "Not Authorized",
+    "editListing.notOwnerDesc": "You can only edit your own listings.",
+    "editListing.availability": "Availability",
+    "editListing.available": "Available",
+    "editListing.unavailable": "Not Available",
+
+    // Common
+    "common.cancel": "Cancel",
   },
   el: {
     // Navigation
@@ -682,7 +742,7 @@ export const translations = {
     "hero.apartments": "Διαμερίσματα",
     "hero.houses": "Μονοκατοικίες",
     "hero.studios": "Στούντιο",
-    "hero.sharedSpaces": "Κοινόχρηστοι Χώροι",
+    "hero.room": "Δωμάτια",
     "hero.activeListings": "Ενεργές Καταχωρήσεις",
     "hero.propertyOwners": "Ιδιοκτήτες Ακινήτων",
     "hero.agentFees": "Προμήθειες Μεσίτη",
@@ -715,7 +775,8 @@ export const translations = {
       "Ενταχθείτε σε χιλιάδες ενοικιαστές που βρήκαν τα σπίτια των ονείρων τους χωρίς να πληρώσουν προμήθειες μεσίτη",
     "home.startSearching": "Έναρξη Αναζήτησης",
     "home.listYourProperty": "Καταχωρήστε το Ακίνητό σας",
-    "home.noListingsYet": "Δεν υπάρχουν ακόμα διαθέσιμα ακίνητα. Ελέγξτε ξανά σύντομα!",
+    "home.noListingsYet":
+      "Δεν υπάρχουν ακόμα διαθέσιμα ακίνητα. Ελέγξτε ξανά σύντομα!",
     "home.allRightsReserved":
       "© 2024 HomiDirect. Όλα τα δικαιώματα διατηρούνται.",
     "home.privacyPolicy": "Πολιτική Απορρήτου",
@@ -782,6 +843,8 @@ export const translations = {
     "search.bathrooms": "Μπάνια",
     "search.any": "Οποιοδήποτε",
     "search.priceRange": "Εύρος Τιμής",
+    "search.minPrice": "Ελάχιστη Τιμή",
+    "search.maxPrice": "Μέγιστη Τιμή",
     "search.results": "Αποτελέσματα Αναζήτησης",
     "search.foundProperties": "Βρέθηκαν {count} ακίνητα στο {location}",
     "search.sortBy": "Ταξινόμηση κατά",
@@ -793,7 +856,8 @@ export const translations = {
     "search.next": "Επόμενο",
     "search.room": "Δωμάτιο",
     "search.allLocations": "Όλες οι Τοποθεσίες",
-    "search.noResults": "Δεν βρέθηκαν ακίνητα που ταιριάζουν με τα κριτήριά σας.",
+    "search.noResults":
+      "Δεν βρέθηκαν ακίνητα που ταιριάζουν με τα κριτήριά σας.",
     "search.errorLoading": "Αποτυχία φόρτωσης ακινήτων. Δοκιμάστε ξανά.",
 
     // Common
@@ -807,8 +871,10 @@ export const translations = {
     "listingDetail.back": "Πίσω",
     "listingDetail.backToSearch": "Επιστροφή στην Αναζήτηση",
     "listingDetail.notFound": "Η Καταχώρηση δεν Βρέθηκε",
-    "listingDetail.notFoundDesc": "Η καταχώρηση που ψάχνετε δεν υπάρχει ή έχει αφαιρεθεί.",
-    "listingDetail.errorLoading": "Αποτυχία φόρτωσης καταχώρησης. Δοκιμάστε ξανά.",
+    "listingDetail.notFoundDesc":
+      "Η καταχώρηση που ψάχνετε δεν υπάρχει ή έχει αφαιρεθεί.",
+    "listingDetail.errorLoading":
+      "Αποτυχία φόρτωσης καταχώρησης. Δοκιμάστε ξανά.",
     "listingDetail.available": "Διαθέσιμο",
     "listingDetail.unavailable": "Μη Διαθέσιμο",
     "listingDetail.bedrooms": "Υπνοδωμάτια",
@@ -828,11 +894,13 @@ export const translations = {
     "listingDetail.monthlyRent": "Μηνιαίο Ενοίκιο",
     "listingDetail.contactOwner": "Επικοινωνία με Ιδιοκτήτη",
     "listingDetail.requestViewing": "Αίτημα Επίσκεψης",
-    "listingDetail.directContact": "Συνδεθείτε απευθείας με τον ιδιοκτήτη - χωρίς μεσίτες, χωρίς χρεώσεις.",
+    "listingDetail.directContact":
+      "Συνδεθείτε απευθείας με τον ιδιοκτήτη - χωρίς μεσίτες, χωρίς χρεώσεις.",
     "listingDetail.quickStats": "Γρήγορα Στατιστικά",
     "listingDetail.pricePerSqm": "Τιμή ανά τ.μ.",
     "listingDetail.safetyTip": "Συμβουλή Ασφαλείας",
-    "listingDetail.safetyTipDesc": "Πάντα επισκεφθείτε το ακίνητο πριν κάνετε οποιαδήποτε πληρωμή. Ποτέ μην στέλνετε χρήματα χωρίς να υπογράψετε κατάλληλη σύμβαση ενοικίασης.",
+    "listingDetail.safetyTipDesc":
+      "Πάντα επισκεφθείτε το ακίνητο πριν κάνετε οποιαδήποτε πληρωμή. Ποτέ μην στέλνετε χρήματα χωρίς να υπογράψετε κατάλληλη σύμβαση ενοικίασης.",
 
     // Privacy Policy
     "privacy.title": "Πολιτική Απορρήτου",
@@ -918,17 +986,54 @@ export const translations = {
     "contact.messageSentDesc":
       "Λάβαμε το μήνυμά σας και θα επικοινωνήσουμε μαζί σας σύντομα.",
 
+    // My Profile
+    "profile.title": "Το Προφίλ μου",
+    "profile.subtitle": "Διαχειριστείτε τα στοιχεία του λογαριασμού σας",
+    "profile.personalInfo": "Προσωπικά Στοιχεία",
+    "profile.personalInfoDesc": "Ενημερώστε τα προσωπικά σας στοιχεία",
+    "profile.firstName": "Όνομα",
+    "profile.lastName": "Επώνυμο",
+    "profile.email": "Email",
+    "profile.role": "Τύπος Λογαριασμού",
+    "profile.memberSince": "Μέλος από",
+    "profile.saveChanges": "Αποθήκευση Αλλαγών",
+    "profile.saving": "Αποθήκευση...",
+    "profile.updateSuccess": "Το προφίλ ενημερώθηκε επιτυχώς",
+    "profile.updateError": "Αποτυχία ενημέρωσης προφίλ. Δοκιμάστε ξανά.",
+    "profile.deleteAccount": "Διαγραφή Λογαριασμού",
+    "profile.deleteAccountDesc":
+      "Διαγράψτε μόνιμα τον λογαριασμό σας και όλα τα σχετικά δεδομένα",
+    "profile.deleteConfirmTitle": "Διαγραφή Λογαριασμού",
+    "profile.deleteConfirmDesc":
+      "Είστε σίγουροι ότι θέλετε να διαγράψετε τον λογαριασμό σας; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί και όλα τα δεδομένα σας θα διαγραφούν μόνιμα.",
+    "profile.deleting": "Διαγραφή...",
+    "profile.deleteSuccess": "Ο λογαριασμός διαγράφηκε επιτυχώς",
+    "profile.deleteError": "Αποτυχία διαγραφής λογαριασμού. Δοκιμάστε ξανά.",
+    "profile.dangerZone": "Επικίνδυνη Ζώνη",
+    "profile.cancel": "Ακύρωση",
+    "profile.tenant": "Ενοικιαστής",
+    "profile.landlord": "Ιδιοκτήτης Ακινήτου",
+    "profile.both": "Ενοικιαστής & Ιδιοκτήτης",
+    "profile.admin": "Διαχειριστής",
+    "profile.editRole": "Αλλαγή",
+    "profile.roleDesc": "Επιλέξτε τον τύπο λογαριασμού σας",
+    "profile.tenantDesc": "Αναζητώ ακίνητα προς ενοικίαση",
+    "profile.landlordDesc": "Θέλω να καταχωρήσω ακίνητα προς ενοικίαση",
+
     // My Listings
     "myListings.title": "Οι Καταχωρήσεις μου",
     "myListings.subtitle": "Διαχειριστείτε τις καταχωρήσεις ακινήτων σας",
     "myListings.noListings": "Δεν έχετε καταχωρήσει ακόμα ακίνητα.",
     "myListings.createFirst": "Δημιουργήστε την Πρώτη σας Καταχώρηση",
-    "myListings.errorLoading": "Αποτυχία φόρτωσης καταχωρήσεων. Δοκιμάστε ξανά.",
+    "myListings.errorLoading":
+      "Αποτυχία φόρτωσης καταχωρήσεων. Δοκιμάστε ξανά.",
     "myListings.loginRequired": "Συνδεθείτε για να δείτε τις καταχωρήσεις σας.",
-    "myListings.landlordRequired": "Μόνο ιδιοκτήτες ακινήτων μπορούν να δουν τις καταχωρήσεις τους.",
+    "myListings.landlordRequired":
+      "Μόνο ιδιοκτήτες ακινήτων μπορούν να δουν τις καταχωρήσεις τους.",
     "myListings.edit": "Επεξεργασία",
     "myListings.delete": "Διαγραφή",
-    "myListings.confirmDelete": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την καταχώρηση;",
+    "myListings.confirmDelete":
+      "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την καταχώρηση;",
     "myListings.deleteSuccess": "Η καταχώρηση διαγράφηκε επιτυχώς.",
     "myListings.deleteFailed": "Αποτυχία διαγραφής. Δοκιμάστε ξανά.",
     "myListings.available": "Διαθέσιμο",
@@ -936,6 +1041,25 @@ export const translations = {
     "myListings.pending": "Αναμονή Επαλήθευσης",
     "myListings.verified": "Επαληθευμένο",
     "myListings.rejected": "Απορρίφθηκε",
+
+    // Edit Listing
+    "editListing.title": "Επεξεργασία Καταχώρησης",
+    "editListing.subtitle": "Ενημερώστε τα στοιχεία της καταχώρησής σας παρακάτω.",
+    "editListing.backToListings": "Επιστροφή στις Καταχωρήσεις μου",
+    "editListing.saveChanges": "Αποθήκευση Αλλαγών",
+    "editListing.saving": "Αποθήκευση...",
+    "editListing.updated": "Η Καταχώρηση Ενημερώθηκε",
+    "editListing.updatedDesc": "Η καταχώρησή σας ενημερώθηκε επιτυχώς.",
+    "editListing.error": "Σφάλμα",
+    "editListing.errorDesc": "Αποτυχία ενημέρωσης καταχώρησης. Δοκιμάστε ξανά.",
+    "editListing.notOwner": "Μη Εξουσιοδοτημένο",
+    "editListing.notOwnerDesc": "Μπορείτε να επεξεργαστείτε μόνο τις δικές σας καταχωρήσεις.",
+    "editListing.availability": "Διαθεσιμότητα",
+    "editListing.available": "Διαθέσιμο",
+    "editListing.unavailable": "Μη Διαθέσιμο",
+
+    // Common
+    "common.cancel": "Ακύρωση",
   },
 };
 

@@ -1,4 +1,4 @@
-export type UserRole = "LANDLORD" | "TENANT" | "ADMIN";
+export type UserRole = "LANDLORD" | "TENANT" | "BOTH" | "ADMIN";
 
 export interface User {
   id: number;
@@ -13,4 +13,5 @@ export interface UpdateUserRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
+  role?: UserRole;
 }

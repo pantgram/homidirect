@@ -36,7 +36,9 @@ const mapListingToPropertyCard = (listing: ListingSearchResult) => ({
   bedrooms: listing.bedrooms,
   bathrooms: listing.bathrooms,
   area: `${listing.area.toLocaleString()} sq ft`,
-  type: listing.propertyType.charAt(0).toUpperCase() + listing.propertyType.slice(1),
+  type:
+    listing.propertyType.charAt(0).toUpperCase() +
+    listing.propertyType.slice(1),
   featured: listing.isFeatured,
 });
 
@@ -47,12 +49,12 @@ const Index = () => {
     queryKey: ["featuredListings"],
     queryFn: async () => {
       // First try to get featured listings
-      const featured = await listingsApi.search({ isFeatured: true, limit: 4 });
+      const featured = await listingsApi.search({ isFeatured: true, limit: 8 });
       if (featured.data.length > 0) {
         return featured;
       }
       // Fall back to newest listings if no featured ones
-      return listingsApi.search({ sortBy: "newest", limit: 4 });
+      return listingsApi.search({ sortBy: "newest", limit: 8 });
     },
   });
 

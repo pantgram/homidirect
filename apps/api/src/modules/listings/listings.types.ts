@@ -16,11 +16,19 @@ export type ListingResponse = Pick<
   | "landlordId"
 >;
 
+export type ListingImageBasic = {
+  id: number;
+  url: string;
+  listingId: number | null;
+  createdAt: Date;
+};
+
 export type ListingSearchResponse = ListingResponse & {
   isFeatured: boolean;
   verificationStatus: "PENDING" | "APPROVED" | "REJECTED";
   country: string | null;
   postalCode: string | null;
+  primaryImage?: ListingImageBasic | null;
 };
 
 export type CreateListingDTO = {

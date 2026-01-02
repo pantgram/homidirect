@@ -34,7 +34,11 @@ export const ListingImageController = {
       throw new ValidationError("No image file provided");
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype as typeof ALLOWED_MIME_TYPES[number])) {
+    if (
+      !ALLOWED_MIME_TYPES.includes(
+        file.mimetype as (typeof ALLOWED_MIME_TYPES)[number]
+      )
+    ) {
       throw new ValidationError(
         `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`
       );
@@ -72,7 +76,11 @@ export const ListingImageController = {
       throw new ValidationError("No image file provided");
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype as typeof ALLOWED_MIME_TYPES[number])) {
+    if (
+      !ALLOWED_MIME_TYPES.includes(
+        file.mimetype as (typeof ALLOWED_MIME_TYPES)[number]
+      )
+    ) {
       throw new ValidationError(
         `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`
       );
@@ -126,7 +134,10 @@ export const ListingImageController = {
     const imageId = parseInt(request.params.imageId);
     const { sessionId } = request.params;
 
-    const deleted = await ListingImageService.deletePendingImage(imageId, sessionId);
+    const deleted = await ListingImageService.deletePendingImage(
+      imageId,
+      sessionId
+    );
     if (!deleted) {
       throw new NotFoundError("Image not found");
     }

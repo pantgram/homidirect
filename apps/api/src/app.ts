@@ -19,19 +19,21 @@ export function buildApp() {
 
   // Register security plugins
   fastify.register(cors, {
-    origin: config.nodeEnv === "development"
-      ? true
-      : config.frontendUrl,
+    origin: config.nodeEnv === "development" ? true : config.frontendUrl,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
   fastify.register(helmet);
 
   // Register multipart for file uploads
+  // Use default options to avoid interfering with DELETE requests
   fastify.register(multipart, {
     limits: {
       fileSize: MAX_FILE_SIZE,
     },
     attachFieldsToBody: false,
+    // Only parse multipart for specific content types
+    throwFileSizeLimit: false,
   });
 
   // Register rate limiting (global defaults)
@@ -52,6 +54,11 @@ export function buildApp() {
   // Health check
   fastify.get("/health", async () => {
     return { status: "ok", timestamp: new Date().toISOString() };
+  });
+
+  // Add logging for requests to help debug
+  fastify.addHook("onRequest", async (request, reply) => {
+    console.log(`[Server Request] ${request.method} ${request.url}`);
   });
 
   // Register routes

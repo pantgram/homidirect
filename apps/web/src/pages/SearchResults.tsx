@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { listingsApi } from "@/api/listings";
 import type {
@@ -31,11 +30,8 @@ const SearchResults = () => {
 
   // Initialize state from URL params
   const [showFilters, setShowFilters] = useState(() => !!searchParams.get("type"));
-  const [priceRange, setPriceRange] = useState(() => {
-    const minPrice = searchParams.get("minPrice");
-    const maxPrice = searchParams.get("maxPrice");
-    return [minPrice ? parseInt(minPrice) : 500, maxPrice ? parseInt(maxPrice) : 5000];
-  });
+  const [minPrice, setMinPrice] = useState(() => searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(() => searchParams.get("maxPrice") || "");
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "");
   const [propertyType, setPropertyType] = useState<PropertyType | "all">(() => {
     const type = searchParams.get("type");
@@ -77,8 +73,8 @@ const SearchResults = () => {
         if (minBedrooms !== "all") params.minBedrooms = parseInt(minBedrooms);
         if (minBathrooms !== "all")
           params.minBathrooms = parseInt(minBathrooms);
-        if (priceRange[0] > 0) params.minPrice = priceRange[0];
-        if (priceRange[1] < 10000) params.maxPrice = priceRange[1];
+        if (minPrice) params.minPrice = parseInt(minPrice);
+        if (maxPrice) params.maxPrice = parseInt(maxPrice);
 
         const response = await listingsApi.search(params);
         setListings(response.data);
@@ -96,7 +92,7 @@ const SearchResults = () => {
         setLoading(false);
       }
     },
-    [searchQuery, propertyType, minBedrooms, minBathrooms, priceRange, sortBy, t]
+    [searchQuery, propertyType, minBedrooms, minBathrooms, minPrice, maxPrice, sortBy, t]
   );
 
   useEffect(() => {
@@ -110,8 +106,8 @@ const SearchResults = () => {
     if (propertyType !== "all") params.set("type", propertyType);
     if (minBedrooms !== "all") params.set("bedrooms", minBedrooms);
     if (minBathrooms !== "all") params.set("bathrooms", minBathrooms);
-    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString());
-    if (priceRange[1] < 10000) params.set("maxPrice", priceRange[1].toString());
+    if (minPrice) params.set("minPrice", minPrice);
+    if (maxPrice) params.set("maxPrice", maxPrice);
     if (sortBy && sortBy !== "featured") params.set("sort", sortBy);
     setSearchParams(params);
 
@@ -248,17 +244,40 @@ const SearchResults = () => {
               </div>
 
               <div className="mt-6">
-                <label className="text-sm font-medium text-foreground mb-4 block">
-                  {t("search.priceRange")}: ${priceRange[0]} - ${priceRange[1]}
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  {t("search.priceRange")}
                 </label>
-                <Slider
-                  min={0}
-                  max={10000}
-                  step={100}
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  className="w-full"
-                />
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder={t("search.minPrice")}
+                      value={minPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || /^\d+$/.test(value)) {
+                          setMinPrice(value);
+                        }
+                      }}
+                    />
+                  </div>
+                  <span className="text-muted-foreground">-</span>
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder={t("search.maxPrice")}
+                      value={maxPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || /^\d+$/.test(value)) {
+                          setMaxPrice(value);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
