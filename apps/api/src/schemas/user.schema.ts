@@ -22,6 +22,7 @@ export const updateUserSchema = z.object({
     .max(100, "Last name must not exceed 100 characters")
     .optional(),
   email: z.string().email("Invalid email address").optional(),
+  role: z.enum(["LANDLORD", "TENANT", "BOTH"]).optional(),
 });
 
 export type UserIdParam = z.infer<typeof userIdParamSchema>;

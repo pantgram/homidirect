@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import PropertyCard from "@/components/PropertyCard";
@@ -7,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Users, TrendingDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { listingsApi } from "@/api/listings";
+import { favoritesApi } from "@/api/favorites";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ListingSearchResult } from "@/api/types";
 import placeholderImage from "@/assets/property-1.jpg";
@@ -27,23 +30,11 @@ const PropertyCardSkeleton = () => (
   </div>
 );
 
-const mapListingToPropertyCard = (listing: ListingSearchResult) => ({
-  id: listing.id,
-  image: listing.primaryImage?.url || placeholderImage,
-  title: listing.title,
-  location: listing.city,
-  price: listing.price.toLocaleString(),
-  bedrooms: listing.bedrooms,
-  bathrooms: listing.bathrooms,
-  area: `${listing.area.toLocaleString()} sq ft`,
-  type:
-    listing.propertyType.charAt(0).toUpperCase() +
-    listing.propertyType.slice(1),
-  featured: listing.isFeatured,
-});
-
 const Index = () => {
   const { t } = useLanguage();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
 
   const { data: listingsResponse, isLoading } = useQuery({
     queryKey: ["featuredListings"],
@@ -58,7 +49,35 @@ const Index = () => {
     },
   });
 
-  const properties = listingsResponse?.data.map(mapListingToPropertyCard) || [];
+  useEffect(() => {
+    const fetchFavoriteIds = async () => {
+      if (!isAuthenticated) {
+        setFavoriteIds(new Set());
+        return;
+      }
+      try {
+        const ids = await favoritesApi.getFavoriteIds();
+        setFavoriteIds(new Set(ids));
+      } catch (err) {
+        console.error("Index: Failed to fetch favorite IDs:", err);
+      }
+    };
+    fetchFavoriteIds();
+  }, [isAuthenticated]);
+
+  const handleFavoriteChange = (id: number, isFavorite: boolean) => {
+    setFavoriteIds((prev) => {
+      const newSet = new Set(prev);
+      if (isFavorite) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+
+  const properties = listingsResponse?.data || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,8 +115,25 @@ const Index = () => {
                 <PropertyCardSkeleton />
               </>
             ) : properties.length > 0 ? (
-              properties.map((property) => (
-                <PropertyCard key={property.id} {...property} />
+              properties.map((listing) => (
+                <PropertyCard
+                  key={listing.id}
+                  id={listing.id}
+                  image={listing.primaryImage?.url || placeholderImage}
+                  title={listing.title}
+                  location={listing.city}
+                  price={listing.price.toLocaleString()}
+                  bedrooms={listing.bedrooms}
+                  bathrooms={listing.bathrooms}
+                  area={`${listing.area.toLocaleString()} sq ft`}
+                  type={
+                    listing.propertyType.charAt(0).toUpperCase() +
+                    listing.propertyType.slice(1)
+                  }
+                  featured={listing.isFeatured}
+                  isFavorite={favoriteIds.has(listing.id)}
+                  onFavoriteChange={handleFavoriteChange}
+                />
               ))
             ) : (
               <p className="col-span-full text-center text-muted-foreground py-8">

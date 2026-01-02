@@ -63,7 +63,8 @@ const EditListing = () => {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const { data: listing, isLoading: isListingLoading } = useListing(listingId);
-  const { data: images = [], isLoading: isImagesLoading } = useListingImages(listingId);
+  const { data: images = [], isLoading: isImagesLoading } =
+    useListingImages(listingId);
   const updateListing = useUpdateListing();
   const uploadImage = useUploadListingImage();
   const deleteImage = useDeleteListingImage();
@@ -81,12 +82,17 @@ const EditListing = () => {
     area: "",
     available: true,
   });
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof ListingFormData, string>>>({});
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof ListingFormData, string>>
+  >({});
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const canAccess = user?.role === "LANDLORD" || user?.role === "ADMIN";
+  const canAccess =
+    user?.role === "LANDLORD" ||
+    user?.role === "BOTH" ||
+    user?.role === "ADMIN";
   const isOwner = listing && user && listing.landlordId === user.id;
   const isAdmin = user?.role === "ADMIN";
   const canEdit = isOwner || isAdmin;
@@ -259,7 +265,8 @@ const EditListing = () => {
     } catch (err: any) {
       toast({
         title: t("imageUpload.uploadError"),
-        description: err.response?.data?.message || t("imageUpload.uploadFailed"),
+        description:
+          err.response?.data?.message || t("imageUpload.uploadFailed"),
         variant: "destructive",
       });
       return false;
@@ -273,7 +280,10 @@ const EditListing = () => {
     if (fileArray.length > remainingSlots) {
       toast({
         title: t("imageUpload.tooManyImages"),
-        description: t("imageUpload.maxImagesReached").replace("{max}", String(MAX_IMAGES)),
+        description: t("imageUpload.maxImagesReached").replace(
+          "{max}",
+          String(MAX_IMAGES)
+        ),
         variant: "destructive",
       });
       return;
@@ -311,7 +321,9 @@ const EditListing = () => {
     [handleFiles]
   );
 
-  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       await handleFiles(files);
@@ -331,7 +343,8 @@ const EditListing = () => {
     } catch (err: any) {
       toast({
         title: t("imageUpload.removeError"),
-        description: err.response?.data?.message || t("imageUpload.removeFailed"),
+        description:
+          err.response?.data?.message || t("imageUpload.removeFailed"),
         variant: "destructive",
       });
     }
@@ -389,7 +402,9 @@ const EditListing = () => {
         <Card className="max-w-3xl mx-auto">
           <CardHeader>
             <CardTitle>{t("listForm.propertyDetails")}</CardTitle>
-            <CardDescription>{t("listForm.propertyDetailsDesc")}</CardDescription>
+            <CardDescription>
+              {t("listForm.propertyDetailsDesc")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -405,32 +420,50 @@ const EditListing = () => {
                     className={formErrors.title ? "border-destructive" : ""}
                   />
                   {formErrors.title && (
-                    <p className="text-sm text-destructive mt-1">{formErrors.title}</p>
+                    <p className="text-sm text-destructive mt-1">
+                      {formErrors.title}
+                    </p>
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="propertyType">{t("listForm.propertyType")}</Label>
+                    <Label htmlFor="propertyType">
+                      {t("listForm.propertyType")}
+                    </Label>
                     <Select
                       value={formData.propertyType}
-                      onValueChange={(value) => handleSelectChange("propertyType", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("propertyType", value)
+                      }
                     >
                       <SelectTrigger
                         id="propertyType"
-                        className={formErrors.propertyType ? "border-destructive" : ""}
+                        className={
+                          formErrors.propertyType ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.selectType")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="apartment">{t("listForm.types.apartment")}</SelectItem>
-                        <SelectItem value="house">{t("listForm.types.house")}</SelectItem>
-                        <SelectItem value="studio">{t("listForm.types.studio")}</SelectItem>
-                        <SelectItem value="room">{t("listForm.types.room")}</SelectItem>
+                        <SelectItem value="apartment">
+                          {t("listForm.types.apartment")}
+                        </SelectItem>
+                        <SelectItem value="house">
+                          {t("listForm.types.house")}
+                        </SelectItem>
+                        <SelectItem value="studio">
+                          {t("listForm.types.studio")}
+                        </SelectItem>
+                        <SelectItem value="room">
+                          {t("listForm.types.room")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {formErrors.propertyType && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.propertyType}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.propertyType}
+                      </p>
                     )}
                   </div>
 
@@ -447,7 +480,9 @@ const EditListing = () => {
                       className={formErrors.price ? "border-destructive" : ""}
                     />
                     {formErrors.price && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.price}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.price}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -463,12 +498,16 @@ const EditListing = () => {
                       className={formErrors.city ? "border-destructive" : ""}
                     />
                     {formErrors.city && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.city}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.city}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <Label htmlFor="postalCode">{t("listForm.postalCode")}</Label>
+                    <Label htmlFor="postalCode">
+                      {t("listForm.postalCode")}
+                    </Label>
                     <Input
                       id="postalCode"
                       value={formData.postalCode}
@@ -493,11 +532,15 @@ const EditListing = () => {
                     <Label htmlFor="bedrooms">{t("listForm.bedrooms")}</Label>
                     <Select
                       value={formData.bedrooms}
-                      onValueChange={(value) => handleSelectChange("bedrooms", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("bedrooms", value)
+                      }
                     >
                       <SelectTrigger
                         id="bedrooms"
-                        className={formErrors.bedrooms ? "border-destructive" : ""}
+                        className={
+                          formErrors.bedrooms ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
@@ -511,7 +554,9 @@ const EditListing = () => {
                       </SelectContent>
                     </Select>
                     {formErrors.bedrooms && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.bedrooms}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.bedrooms}
+                      </p>
                     )}
                   </div>
 
@@ -519,11 +564,15 @@ const EditListing = () => {
                     <Label htmlFor="bathrooms">{t("listForm.bathrooms")}</Label>
                     <Select
                       value={formData.bathrooms}
-                      onValueChange={(value) => handleSelectChange("bathrooms", value)}
+                      onValueChange={(value) =>
+                        handleSelectChange("bathrooms", value)
+                      }
                     >
                       <SelectTrigger
                         id="bathrooms"
-                        className={formErrors.bathrooms ? "border-destructive" : ""}
+                        className={
+                          formErrors.bathrooms ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
@@ -535,7 +584,9 @@ const EditListing = () => {
                       </SelectContent>
                     </Select>
                     {formErrors.bathrooms && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.bathrooms}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.bathrooms}
+                      </p>
                     )}
                   </div>
 
@@ -552,13 +603,17 @@ const EditListing = () => {
                       className={formErrors.area ? "border-destructive" : ""}
                     />
                     {formErrors.area && (
-                      <p className="text-sm text-destructive mt-1">{formErrors.area}</p>
+                      <p className="text-sm text-destructive mt-1">
+                        {formErrors.area}
+                      </p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="description">{t("listForm.description")}</Label>
+                  <Label htmlFor="description">
+                    {t("listForm.description")}
+                  </Label>
                   <Textarea
                     id="description"
                     value={formData.description}
@@ -570,19 +625,28 @@ const EditListing = () => {
 
                 {/* Availability Toggle */}
                 <div className="flex items-center gap-3">
-                  <Label htmlFor="available">{t("editListing.availability")}</Label>
+                  <Label htmlFor="available">
+                    {t("editListing.availability")}
+                  </Label>
                   <Select
                     value={formData.available ? "available" : "unavailable"}
                     onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, available: value === "available" }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        available: value === "available",
+                      }))
                     }
                   >
                     <SelectTrigger id="available" className="w-[180px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="available">{t("editListing.available")}</SelectItem>
-                      <SelectItem value="unavailable">{t("editListing.unavailable")}</SelectItem>
+                      <SelectItem value="available">
+                        {t("editListing.available")}
+                      </SelectItem>
+                      <SelectItem value="unavailable">
+                        {t("editListing.unavailable")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -624,7 +688,8 @@ const EditListing = () => {
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="h-12 w-12 text-primary animate-spin" />
                       <p className="text-sm text-foreground">
-                        {t("imageUpload.uploading")} ({uploadingCount} {t("imageUpload.files")})
+                        {t("imageUpload.uploading")} ({uploadingCount}{" "}
+                        {t("imageUpload.files")})
                       </p>
                     </div>
                   ) : (
@@ -638,7 +703,9 @@ const EditListing = () => {
                       <p
                         className={cn(
                           "text-sm mb-1",
-                          canUploadMore ? "text-foreground" : "text-muted-foreground"
+                          canUploadMore
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                         )}
                       >
                         {canUploadMore
@@ -649,7 +716,8 @@ const EditListing = () => {
                         {t("imageUpload.supportedFormats")} (max 5MB)
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {images.length}/{MAX_IMAGES} {t("imageUpload.imagesUploaded")}
+                        {images.length}/{MAX_IMAGES}{" "}
+                        {t("imageUpload.imagesUploaded")}
                       </p>
                     </>
                   )}

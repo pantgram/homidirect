@@ -66,9 +66,14 @@ const ListProperty = () => {
   const [formData, setFormData] = useState<ListingFormData>(initialFormData);
   const [uploadSessionId, setUploadSessionId] = useState<string | null>(null);
   const [images, setImages] = useState<PendingImage[]>([]);
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof ListingFormData, string>>>({});
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof ListingFormData, string>>
+  >({});
 
-  const canAccess = user?.role === "LANDLORD" || user?.role === "ADMIN";
+  const canAccess =
+    user?.role === "LANDLORD" ||
+    user?.role === "BOTH" ||
+    user?.role === "ADMIN";
 
   useEffect(() => {
     if (!isAuthLoading && (!isAuthenticated || !canAccess)) {
@@ -215,7 +220,9 @@ const ListProperty = () => {
         <Card className="max-w-3xl mx-auto">
           <CardHeader>
             <CardTitle>{t("listForm.propertyDetails")}</CardTitle>
-            <CardDescription>{t("listForm.propertyDetailsDesc")}</CardDescription>
+            <CardDescription>
+              {t("listForm.propertyDetailsDesc")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -239,7 +246,9 @@ const ListProperty = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="propertyType">{t("listForm.propertyType")}</Label>
+                    <Label htmlFor="propertyType">
+                      {t("listForm.propertyType")}
+                    </Label>
                     <Select
                       value={formData.propertyType}
                       onValueChange={(value) =>
@@ -248,7 +257,9 @@ const ListProperty = () => {
                     >
                       <SelectTrigger
                         id="propertyType"
-                        className={formErrors.propertyType ? "border-destructive" : ""}
+                        className={
+                          formErrors.propertyType ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.selectType")} />
                       </SelectTrigger>
@@ -312,7 +323,9 @@ const ListProperty = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="postalCode">{t("listForm.postalCode")}</Label>
+                    <Label htmlFor="postalCode">
+                      {t("listForm.postalCode")}
+                    </Label>
                     <Input
                       id="postalCode"
                       value={formData.postalCode}
@@ -343,7 +356,9 @@ const ListProperty = () => {
                     >
                       <SelectTrigger
                         id="bedrooms"
-                        className={formErrors.bedrooms ? "border-destructive" : ""}
+                        className={
+                          formErrors.bedrooms ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
@@ -373,7 +388,9 @@ const ListProperty = () => {
                     >
                       <SelectTrigger
                         id="bathrooms"
-                        className={formErrors.bathrooms ? "border-destructive" : ""}
+                        className={
+                          formErrors.bathrooms ? "border-destructive" : ""
+                        }
                       >
                         <SelectValue placeholder={t("common.select")} />
                       </SelectTrigger>
@@ -412,7 +429,9 @@ const ListProperty = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="description">{t("listForm.description")}</Label>
+                  <Label htmlFor="description">
+                    {t("listForm.description")}
+                  </Label>
                   <Textarea
                     id="description"
                     value={formData.description}

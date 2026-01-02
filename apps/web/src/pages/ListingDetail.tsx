@@ -26,7 +26,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { listingsApi } from "@/api/listings";
+import { favoritesApi } from "@/api/favorites";
 import type { Listing, ListingImage, PropertyType } from "@/api/types";
 import placeholderImage from "@/assets/property-1.jpg";
 
@@ -34,6 +37,8 @@ const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
 
   const [listing, setListing] = useState<Listing | null>(null);
   const [images, setImages] = useState<ListingImage[]>([]);
@@ -41,6 +46,7 @@ const ListingDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -61,6 +67,16 @@ const ListingDetail = () => {
           console.error("Failed to fetch images:", imgErr);
           // Continue without images
         }
+
+        // Check if listing is favorited (only for authenticated users)
+        if (isAuthenticated) {
+          try {
+            const favorited = await favoritesApi.checkFavorite(parseInt(id));
+            setIsFavorite(favorited);
+          } catch (favErr) {
+            console.error("Failed to check favorite status:", favErr);
+          }
+        }
       } catch (err) {
         console.error("Failed to fetch listing:", err);
         setError(t("listingDetail.errorLoading"));
@@ -70,7 +86,33 @@ const ListingDetail = () => {
     };
 
     fetchListing();
-  }, [id, t]);
+  }, [id, t, isAuthenticated]);
+
+  const handleToggleFavorite = async () => {
+    if (!id) return;
+
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      const newFavoriteState = await favoritesApi.toggleFavorite(parseInt(id), isFavorite);
+      setIsFavorite(newFavoriteState);
+      toast({
+        title: newFavoriteState ? t("favorites.added") : t("favorites.removed"),
+      });
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+      toast({
+        title: t("favorites.removeFailed"),
+        variant: "destructive",
+      });
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString();
@@ -221,12 +263,17 @@ const ListingDetail = () => {
                 {/* Action Buttons */}
                 <div className="absolute top-4 right-4 flex gap-2">
                   <button
-                    onClick={() => setIsFavorite(!isFavorite)}
-                    className="bg-background/80 hover:bg-background rounded-full p-2 transition-colors"
+                    onClick={handleToggleFavorite}
+                    disabled={favoriteLoading}
+                    className="bg-background/80 hover:bg-background rounded-full p-2 transition-colors disabled:opacity-50"
                   >
-                    <Heart
-                      className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
-                    />
+                    {favoriteLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Heart
+                        className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
+                      />
+                    )}
                   </button>
                   <button
                     onClick={handleShare}

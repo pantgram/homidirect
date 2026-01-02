@@ -43,7 +43,10 @@ const MyListings = () => {
   const [listingToDelete, setListingToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const canAccess = user?.role === "LANDLORD" || user?.role === "ADMIN";
+  const canAccess =
+    user?.role === "LANDLORD" ||
+    user?.role === "ADMIN" ||
+    user?.role === "BOTH";
 
   const fetchListings = useCallback(
     async (page = 1) => {
@@ -88,7 +91,15 @@ const MyListings = () => {
       }
       fetchListings();
     }
-  }, [isAuthLoading, isAuthenticated, canAccess, navigate, toast, t, fetchListings]);
+  }, [
+    isAuthLoading,
+    isAuthenticated,
+    canAccess,
+    navigate,
+    toast,
+    t,
+    fetchListings,
+  ]);
 
   const handlePageChange = (page: number) => {
     fetchListings(page);
@@ -315,7 +326,9 @@ const MyListings = () => {
                     return (
                       <Button
                         key={pageNum}
-                        variant={pagination.page === pageNum ? "default" : "outline"}
+                        variant={
+                          pagination.page === pageNum ? "default" : "outline"
+                        }
                         onClick={() => handlePageChange(pageNum)}
                       >
                         {pageNum}

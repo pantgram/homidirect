@@ -524,6 +524,22 @@ export const translations = {
     "editListing.available": "Available",
     "editListing.unavailable": "Not Available",
 
+    // Favorites
+    "favorites.title": "My Favorites",
+    "favorites.subtitle": "Properties you've saved",
+    "favorites.noFavorites": "No saved properties yet",
+    "favorites.saveSome": "Start exploring and save properties you like",
+    "favorites.browseListings": "Browse Listings",
+    "favorites.removed": "Removed from favorites",
+    "favorites.added": "Added to favorites",
+    "favorites.removeFailed": "Failed to remove from favorites",
+    "favorites.removeTitle": "Remove from Favorites",
+    "favorites.confirmRemove": "Are you sure you want to remove this property from your favorites?",
+    "favorites.remove": "Remove",
+    "favorites.errorLoading": "Failed to load favorites. Please try again.",
+    "favorites.property": "property",
+    "favorites.properties": "properties",
+
     // Common
     "common.cancel": "Cancel",
   },
@@ -1057,6 +1073,22 @@ export const translations = {
     "editListing.availability": "Διαθεσιμότητα",
     "editListing.available": "Διαθέσιμο",
     "editListing.unavailable": "Μη Διαθέσιμο",
+
+    // Favorites
+    "favorites.title": "Τα Αγαπημένα μου",
+    "favorites.subtitle": "Ακίνητα που έχετε αποθηκεύσει",
+    "favorites.noFavorites": "Δεν έχετε αποθηκευμένα ακίνητα ακόμα",
+    "favorites.saveSome": "Ξεκινήστε την εξερεύνηση και αποθηκεύστε ακίνητα που σας αρέσουν",
+    "favorites.browseListings": "Περιήγηση Καταχωρήσεων",
+    "favorites.removed": "Αφαιρέθηκε από τα αγαπημένα",
+    "favorites.added": "Προστέθηκε στα αγαπημένα",
+    "favorites.removeFailed": "Αποτυχία αφαίρεσης από τα αγαπημένα",
+    "favorites.removeTitle": "Αφαίρεση από τα Αγαπημένα",
+    "favorites.confirmRemove": "Είστε σίγουροι ότι θέλετε να αφαιρέσετε αυτό το ακίνητο από τα αγαπημένα σας;",
+    "favorites.remove": "Αφαίρεση",
+    "favorites.errorLoading": "Αποτυχία φόρτωσης αγαπημένων. Δοκιμάστε ξανά.",
+    "favorites.property": "ακίνητο",
+    "favorites.properties": "ακίνητα",
 
     // Common
     "common.cancel": "Ακύρωση",

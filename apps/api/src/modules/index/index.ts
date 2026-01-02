@@ -2,13 +2,17 @@ import { FastifyInstance } from "fastify";
 import { authRoutes } from "../auth/auth.routes";
 import { userRoutes } from "../users/users.routes";
 import { listingRoutes } from "../listings/listings.routes";
-import { listingImageRoutes, pendingImageRoutes } from "../listingImages/listingImages.routes";
+import {
+  listingImageRoutes,
+  pendingImageRoutes,
+} from "../listingImages/listingImages.routes";
 import { bookingRoutes } from "../bookings/bookings.routes";
 import { tagRoutes } from "../tags/tags.routes";
 import {
   verificationDocumentRoutes,
   adminVerificationRoutes,
 } from "../verificationDocuments/verificationDocuments.routes";
+import { favoritesRoutes } from "../favorites/favorites.routes";
 
 export async function apiRoutes(fastify: FastifyInstance) {
   // all auth routes will be under /api/auth
@@ -37,4 +41,6 @@ export async function apiRoutes(fastify: FastifyInstance) {
 
   // admin verification routes under /api/admin/verifications
   fastify.register(adminVerificationRoutes, { prefix: "/admin/verifications" });
+
+  // favorites routes under /api/favorites
 }

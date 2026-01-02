@@ -4,7 +4,7 @@ import { z } from "zod";
  * Listing ID parameter schema
  */
 export const listingIdParamSchema = z.object({
-  id: z.string().regex(/^\d+$/, "Listing ID must be a valid number"),
+  listingId: z.string().regex(/^\d+$/, "Listing ID must be a valid number"),
 });
 
 /**

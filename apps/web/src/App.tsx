@@ -21,6 +21,7 @@ import Contact from "./pages/Contact";
 import MyListings from "./pages/MyListings";
 import MyProfile from "./pages/MyProfile";
 import EditListing from "./pages/EditListing";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,31 +31,38 @@ const App = () => (
     <AuthProvider>
       <LanguageProvider>
         <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/list-property-info" element={<ListPropertyInfo />} />
-            <Route path="/list-property" element={<ListProperty />} />
-            <Route path="/listings/:id" element={<ListingDetail />} />
-            <Route path="/listings/:listingId/verification" element={<ListingVerification />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/my-listings" element={<MyListings />} />
-            <Route path="/listings/:id/edit" element={<EditListing />} />
-            <Route path="/profile" element={<MyProfile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route
+                path="/list-property-info"
+                element={<ListPropertyInfo />}
+              />
+              <Route path="/list-property" element={<ListProperty />} />
+              <Route path="/listings/:id" element={<ListingDetail />} />
+              <Route
+                path="/listings/:listingId/verification"
+                element={<ListingVerification />}
+              />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/my-listings" element={<MyListings />} />
+              <Route path="/listings/:id/edit" element={<EditListing />} />
+              <Route path="/profile" element={<MyProfile />} />
+              <Route path="/my-favorites" element={<Favorites />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
       </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>

@@ -14,7 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { listingsApi } from "@/api/listings";
+import { favoritesApi } from "@/api/favorites";
 import type {
   SearchListingsParams,
   ListingSearchResult,
@@ -26,6 +28,7 @@ const PROPERTY_TYPES = ["apartment", "house", "studio", "room"] as const;
 
 const SearchResults = () => {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Initialize state from URL params
@@ -54,6 +57,36 @@ const SearchResults = () => {
     hasNextPage: false,
     hasPreviousPage: false,
   });
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
+
+  // Fetch favorite IDs for authenticated users
+  useEffect(() => {
+    const fetchFavoriteIds = async () => {
+      if (!isAuthenticated) {
+        setFavoriteIds(new Set());
+        return;
+      }
+      try {
+        const ids = await favoritesApi.getFavoriteIds();
+        setFavoriteIds(new Set(ids));
+      } catch (err) {
+        console.error("Failed to fetch favorite IDs:", err);
+      }
+    };
+    fetchFavoriteIds();
+  }, [isAuthenticated]);
+
+  const handleFavoriteChange = (id: number, isFavorite: boolean) => {
+    setFavoriteIds((prev) => {
+      const newSet = new Set(prev);
+      if (isFavorite) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
 
   const fetchListings = useCallback(
     async (page = 1) => {
@@ -359,6 +392,8 @@ const SearchResults = () => {
                 area={formatArea(listing.area)}
                 type={getPropertyTypeLabel(listing.propertyType)}
                 featured={listing.isFeatured}
+                isFavorite={favoriteIds.has(listing.id)}
+                onFavoriteChange={handleFavoriteChange}
               />
             ))}
           </div>

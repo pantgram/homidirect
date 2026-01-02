@@ -38,3 +38,4 @@ coverage/
 tmp/
 temp/
 .env.example
+PROJECT_PLANS

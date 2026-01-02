@@ -10,10 +10,10 @@ export const ListingController = {
   },
 
   async getById(
-    request: FastifyRequest<{ Params: { id: string } }>,
+    request: FastifyRequest<{ Params: { listingId: string } }>,
     reply: FastifyReply
   ) {
-    const id = parseInt(request.params.id);
+    const id = parseInt(request.params.listingId);
     const listing = await ListingService.getListingById(id);
 
     if (!listing) {
@@ -33,10 +33,10 @@ export const ListingController = {
   },
 
   async update(
-    request: FastifyRequest<{ Params: { id: string }; Body: UpdateListingDTO }>,
+    request: FastifyRequest<{ Params: { listingId: string }; Body: UpdateListingDTO }>,
     reply: FastifyReply
   ) {
-    const id = parseInt(request.params.id);
+    const id = parseInt(request.params.listingId);
     const listing = await ListingService.updateListing(id, request.body);
 
     if (!listing) {
@@ -47,10 +47,10 @@ export const ListingController = {
   },
 
   async delete(
-    request: FastifyRequest<{ Params: { id: string } }>,
+    request: FastifyRequest<{ Params: { listingId: string } }>,
     reply: FastifyReply
   ) {
-    const id = parseInt(request.params.id);
+    const id = parseInt(request.params.listingId);
     const deleted = await ListingService.deleteListing(id);
 
     if (!deleted) {

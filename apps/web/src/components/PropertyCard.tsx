@@ -1,8 +1,12 @@
-import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Square } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { MapPin, Bed, Bath, Square, Heart, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { favoritesApi } from "@/api/favorites";
 
 interface PropertyCardProps {
   id?: number;
@@ -15,6 +19,8 @@ interface PropertyCardProps {
   area: string;
   type: string;
   featured?: boolean;
+  isFavorite?: boolean;
+  onFavoriteChange?: (id: number, isFavorite: boolean) => void;
 }
 
 const PropertyCard = ({
@@ -28,8 +34,50 @@ const PropertyCard = ({
   area,
   type,
   featured = false,
+  isFavorite: initialIsFavorite = false,
+  onFavoriteChange,
 }: PropertyCardProps) => {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+
+  useEffect(() => {
+    setIsFavorite(initialIsFavorite);
+  }, [initialIsFavorite]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!id) return;
+
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      const newFavoriteState = await favoritesApi.toggleFavorite(id, isFavorite);
+      setIsFavorite(newFavoriteState);
+      onFavoriteChange?.(id, newFavoriteState);
+      toast({
+        title: newFavoriteState ? t("favorites.added") : t("favorites.removed"),
+      });
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+      toast({
+        title: t("favorites.removeFailed"),
+        variant: "destructive",
+      });
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const CardWrapper = ({ children }: { children: React.ReactNode }) => {
     if (id) {
@@ -56,9 +104,26 @@ const PropertyCard = ({
             {t("propertyCard.featured")}
           </Badge>
         )}
-        <Badge className="absolute top-4 right-4 bg-card text-card-foreground backdrop-blur-sm">
-          {type}
-        </Badge>
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Badge className="bg-card text-card-foreground backdrop-blur-sm">
+            {type}
+          </Badge>
+          {id && (
+            <button
+              onClick={handleToggleFavorite}
+              disabled={favoriteLoading}
+              className="bg-card/80 hover:bg-card rounded-full p-1.5 transition-colors disabled:opacity-50"
+            >
+              {favoriteLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Heart
+                  className={`h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
+                />
+              )}
+            </button>
+          )}
+        </div>
       </div>
       
       <CardContent className="p-5">

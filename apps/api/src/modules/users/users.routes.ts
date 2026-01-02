@@ -3,6 +3,7 @@ import { UserController } from "./users.controller";
 import { verifyUserOwnership } from "@/middleware/authorization";
 import { validateBody, validateParams } from "@/plugins/validator";
 import { updateUserSchema, userIdParamSchema } from "@/schemas/user.schema";
+import { favoritesRoutes } from "../favorites/favorites.routes";
 
 export async function userRoutes(fastify: FastifyInstance) {
   // Get current authenticated user
@@ -11,7 +12,7 @@ export async function userRoutes(fastify: FastifyInstance) {
     { preValidation: [fastify.authenticate] },
     UserController.me
   );
-
+  fastify.register(favoritesRoutes, { prefix: "/favorites" });
   // Get user by ID - PROTECTED: only authenticated users can view user profiles
   fastify.get<{ Params: { id: string } }>(
     "/:id",

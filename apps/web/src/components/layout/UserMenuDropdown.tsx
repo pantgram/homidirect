@@ -22,7 +22,9 @@ export function UserMenuDropdown() {
     return null;
   }
 
-  const initials = `${user.firstName?.charAt(0) || ""}${user.lastName?.charAt(0) || ""}`.toUpperCase();
+  const initials = `${user.firstName?.charAt(0) || ""}${
+    user.lastName?.charAt(0) || ""
+  }`.toUpperCase();
 
   const handleLogout = () => {
     logout();
@@ -56,16 +58,21 @@ export function UserMenuDropdown() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {user.role === "LANDLORD" || user.role === "ADMIN" ? (
+        {user.role === "LANDLORD" ||
+        user.role === "ADMIN" ||
+        user.role === "BOTH" ? (
           <DropdownMenuItem asChild>
-            <Link to="/my-listings" className="flex items-center cursor-pointer">
+            <Link
+              to="/my-listings"
+              className="flex items-center cursor-pointer"
+            >
               <Home className="mr-2 h-4 w-4" />
               {t("userMenu.myListings")}
             </Link>
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem asChild>
-          <Link to="/favorites" className="flex items-center cursor-pointer">
+          <Link to="/my-favorites" className="flex items-center cursor-pointer">
             <Heart className="mr-2 h-4 w-4" />
             {t("userMenu.favorites")}
           </Link>

@@ -4,7 +4,7 @@ import { listings } from "@/modules/listings/listings.model";
 import { bookings } from "@/modules/bookings/bookings.model";
 import { eq } from "drizzle-orm";
 
-export type UserRole = "LANDLORD" | "TENANT" | "ADMIN";
+export type UserRole = "LANDLORD" | "TENANT" | "BOTH" | "ADMIN";
 
 export interface AuthenticatedRequest extends FastifyRequest {
   user: {
