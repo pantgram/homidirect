@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,24 +6,26 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
-import SearchResults from "./pages/SearchResults";
-import ListProperty from "./pages/ListProperty";
-import ListPropertyInfo from "./pages/ListPropertyInfo";
-import ListingVerification from "./pages/ListingVerification";
-import ListingDetail from "./pages/ListingDetail";
-import HowItWorks from "./pages/HowItWorks";
-import Auth from "./pages/Auth";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import Contact from "./pages/Contact";
-import MyListings from "./pages/MyListings";
-import MyProfile from "./pages/MyProfile";
-import EditListing from "./pages/EditListing";
-import Favorites from "./pages/Favorites";
-import NotFound from "./pages/NotFound";
+
+// Lazy load all pages for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const SearchResults = lazy(() => import("./pages/SearchResults"));
+const ListProperty = lazy(() => import("./pages/ListProperty"));
+const ListPropertyInfo = lazy(() => import("./pages/ListPropertyInfo"));
+const ListingVerification = lazy(() => import("./pages/ListingVerification"));
+const ListingDetail = lazy(() => import("./pages/ListingDetail"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Contact = lazy(() => import("./pages/Contact"));
+const MyListings = lazy(() => import("./pages/MyListings"));
+const MyProfile = lazy(() => import("./pages/MyProfile"));
+const EditListing = lazy(() => import("./pages/EditListing"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -34,6 +37,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/search" element={<SearchResults />} />
@@ -61,6 +65,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>

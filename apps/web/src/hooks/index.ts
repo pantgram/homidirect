@@ -36,3 +36,6 @@ export {
 
 // Toast hook
 export { useToast } from "./use-toast";
+
+// Favorites hook
+export { useFavorites } from "./useFavorites";
