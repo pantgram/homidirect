@@ -1,28 +1,29 @@
-import { Home, DollarSign, MapPin, CheckCircle, ArrowRight } from "lucide-react";
+import { Home, EuroIcon, MapPin, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ListPropertyInfo = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [isPropertyOwner, setIsPropertyOwner] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const propertyOwner = localStorage.getItem("isPropertyOwner") === "true";
-    setIsLoggedIn(loggedIn);
-    setIsPropertyOwner(propertyOwner);
-  }, []);
+  const isPropertyOwner =
+    user?.role === "LANDLORD" ||
+    user?.role === "BOTH" ||
+    user?.role === "ADMIN";
 
   const handleGetStarted = () => {
-    if (!isLoggedIn) {
-      navigate("/auth");
-    } else if (!isPropertyOwner) {
+    if (!isAuthenticated || !isPropertyOwner) {
       navigate("/auth");
     } else {
       navigate("/list-property");
@@ -32,7 +33,7 @@ const ListPropertyInfo = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <main className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="max-w-3xl mx-auto mb-12 text-center">
@@ -50,18 +51,14 @@ const ListPropertyInfo = () => {
             <CardHeader>
               <Home className="h-8 w-8 text-primary mb-2" />
               <CardTitle>{t("listInfo.noFees")}</CardTitle>
-              <CardDescription>
-                {t("listInfo.noFeesDesc")}
-              </CardDescription>
+              <CardDescription>{t("listInfo.noFeesDesc")}</CardDescription>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader>
-              <DollarSign className="h-8 w-8 text-primary mb-2" />
+              <EuroIcon className="h-8 w-8 text-primary mb-2" />
               <CardTitle>{t("listInfo.setPrice")}</CardTitle>
-              <CardDescription>
-                {t("listInfo.setPriceDesc")}
-              </CardDescription>
+              <CardDescription>{t("listInfo.setPriceDesc")}</CardDescription>
             </CardHeader>
           </Card>
           <Card>
@@ -79,9 +76,7 @@ const ListPropertyInfo = () => {
         <Card className="max-w-3xl mx-auto mb-12">
           <CardHeader>
             <CardTitle>{t("listInfo.howToList")}</CardTitle>
-            <CardDescription>
-              {t("listInfo.howToListDesc")}
-            </CardDescription>
+            <CardDescription>{t("listInfo.howToListDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -90,7 +85,9 @@ const ListPropertyInfo = () => {
                   1
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{t("listInfo.step1")}</h3>
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {t("listInfo.step1")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {t("listInfo.step1Desc")}
                   </p>
@@ -102,7 +99,9 @@ const ListPropertyInfo = () => {
                   2
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{t("listInfo.step2")}</h3>
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {t("listInfo.step2")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {t("listInfo.step2Desc")}
                   </p>
@@ -114,7 +113,9 @@ const ListPropertyInfo = () => {
                   3
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{t("listInfo.step3")}</h3>
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {t("listInfo.step3")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {t("listInfo.step3Desc")}
                   </p>
@@ -126,7 +127,9 @@ const ListPropertyInfo = () => {
                   4
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-1">{t("listInfo.step4")}</h3>
+                  <h3 className="font-semibold text-foreground mb-1">
+                    {t("listInfo.step4")}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     {t("listInfo.step4Desc")}
                   </p>
@@ -138,14 +141,14 @@ const ListPropertyInfo = () => {
 
         {/* CTA */}
         <div className="text-center max-w-2xl mx-auto">
-          {!isLoggedIn && (
+          {!isAuthenticated && (
             <div className="bg-muted/50 rounded-lg p-6 mb-6">
               <p className="text-sm text-muted-foreground mb-4">
                 {t("listInfo.needRegister")}
               </p>
             </div>
           )}
-          {isLoggedIn && !isPropertyOwner && (
+          {isAuthenticated && !isPropertyOwner && (
             <div className="bg-muted/50 rounded-lg p-6 mb-6">
               <p className="text-sm text-muted-foreground mb-4">
                 {t("listInfo.tenantAccount")}
@@ -153,7 +156,9 @@ const ListPropertyInfo = () => {
             </div>
           )}
           <Button size="lg" onClick={handleGetStarted} className="group">
-            {!isLoggedIn || !isPropertyOwner ? t("listInfo.registerButton") : t("listInfo.startListing")}
+            {!isAuthenticated || !isPropertyOwner
+              ? t("listInfo.registerButton")
+              : t("listInfo.startListing")}
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>

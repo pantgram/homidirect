@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MapPin, Bed, Bath, Square, Heart, Loader2 } from "lucide-react";
+import {
+  MapPin,
+  Bed,
+  EuroIcon,
+  Bath,
+  Square,
+  Heart,
+  Loader2,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -145,7 +153,7 @@ const PropertyCard = ({
         <CardContent className="p-5">
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="font-semibold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-lg text-foreground mb-1 group-hover:text-primary transition-colors line-clamp-1">
                 {title}
               </h3>
               <div className="flex items-center text-sm text-muted-foreground">
@@ -154,7 +162,7 @@ const PropertyCard = ({
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-primary">${price}</div>
+              <div className="text-2x1 font-bold text-primary whitespace-nowrap">{price} €</div>
               <div className="text-xs text-muted-foreground">
                 {t("propertyCard.perMonth")}
               </div>

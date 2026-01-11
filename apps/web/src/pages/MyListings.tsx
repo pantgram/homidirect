@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { listingsApi } from "@/api/listings";
-import type { ListingSearchResult, PropertyType } from "@/api/types";
+import type { ListingSearchResult } from "@/api/types";
 import placeholderImage from "@/assets/property-1.jpg";
 
 const MyListings = () => {
@@ -146,16 +146,6 @@ const MyListings = () => {
     return `${area.toLocaleString()} m²`;
   };
 
-  const getPropertyTypeLabel = (type: PropertyType) => {
-    const labels: Record<PropertyType, string> = {
-      apartment: t("search.apartment"),
-      house: t("search.house"),
-      studio: t("search.studio"),
-      room: t("search.room"),
-    };
-    return labels[type] || type;
-  };
-
   const getVerificationBadge = (status: string | undefined) => {
     switch (status) {
       case "VERIFIED":
@@ -262,7 +252,7 @@ const MyListings = () => {
                     bedrooms={listing.bedrooms}
                     bathrooms={listing.bathrooms}
                     area={formatArea(listing.area)}
-                    type={getPropertyTypeLabel(listing.propertyType)}
+                    propertyType={listing.propertyType}
                     featured={listing.isFeatured}
                   />
                   {/* Status badges and action buttons overlay */}
