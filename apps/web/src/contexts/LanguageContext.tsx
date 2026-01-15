@@ -382,6 +382,10 @@ export const translations = {
     "listingDetail.safetyTip": "Safety Tip",
     "listingDetail.safetyTipDesc":
       "Always visit the property before making any payments. Never send money without signing a proper rental agreement.",
+    "listingDetail.shareText": "Check out this property",
+    "listingDetail.linkCopied": "Link Copied",
+    "listingDetail.linkCopiedDesc": "Property link has been copied to your clipboard",
+    "listingDetail.shareFailed": "Failed to share",
 
     // Privacy Policy
     "privacy.title": "Privacy Policy",
@@ -563,6 +567,26 @@ export const translations = {
     "locationSearch.searching": "Searching...",
     "locationSearch.validation.invalidCity": "Please select a valid city from the list",
     "locationSearch.validation.invalidCountry": "Please select a valid country from the list",
+
+    // Contact Owner Dialog
+    "contactOwner.title": "Contact Property Owner",
+    "contactOwner.subtitle": "Send a message about:",
+    "contactOwner.name": "Your Name",
+    "contactOwner.namePlaceholder": "Enter your full name",
+    "contactOwner.email": "Email",
+    "contactOwner.emailPlaceholder": "your.email@example.com",
+    "contactOwner.phone": "Phone (optional)",
+    "contactOwner.phonePlaceholder": "Your phone number",
+    "contactOwner.message": "Message",
+    "contactOwner.messagePlaceholder": "Hi, I'm interested in this property. I would like to know more about...",
+    "contactOwner.send": "Send Message",
+    "contactOwner.sending": "Sending...",
+    "contactOwner.sent": "Message Sent!",
+    "contactOwner.sentDesc": "The property owner will receive your message and contact you soon.",
+    "contactOwner.error": "Error",
+    "contactOwner.fillRequired": "Please fill in all required fields.",
+    "contactOwner.sendFailed": "Failed to send message. Please try again.",
+    "contactOwner.privacyNote": "Your contact information will only be shared with the property owner.",
   },
   el: {
     // Navigation
@@ -947,6 +971,10 @@ export const translations = {
     "listingDetail.safetyTip": "Συμβουλή Ασφαλείας",
     "listingDetail.safetyTipDesc":
       "Πάντα επισκεφθείτε το ακίνητο πριν κάνετε οποιαδήποτε πληρωμή. Ποτέ μην στέλνετε χρήματα χωρίς να υπογράψετε κατάλληλη σύμβαση ενοικίασης.",
+    "listingDetail.shareText": "Δείτε αυτό το ακίνητο",
+    "listingDetail.linkCopied": "Ο σύνδεσμος αντιγράφηκε",
+    "listingDetail.linkCopiedDesc": "Ο σύνδεσμος του ακινήτου αντιγράφηκε στο πρόχειρο",
+    "listingDetail.shareFailed": "Αποτυχία κοινοποίησης",
 
     // Privacy Policy
     "privacy.title": "Πολιτική Απορρήτου",
@@ -1134,6 +1162,26 @@ export const translations = {
     "locationSearch.searching": "Αναζήτηση...",
     "locationSearch.validation.invalidCity": "Παρακαλώ επιλέξτε έγκυρη πόλη από τη λίστα",
     "locationSearch.validation.invalidCountry": "Παρακαλώ επιλέξτε έγκυρη χώρα από τη λίστα",
+
+    // Contact Owner Dialog
+    "contactOwner.title": "Επικοινωνία με Ιδιοκτήτη",
+    "contactOwner.subtitle": "Στείλτε μήνυμα σχετικά με:",
+    "contactOwner.name": "Το Όνομά σας",
+    "contactOwner.namePlaceholder": "Εισάγετε το πλήρες όνομά σας",
+    "contactOwner.email": "Email",
+    "contactOwner.emailPlaceholder": "to.email.sas@example.com",
+    "contactOwner.phone": "Τηλέφωνο (προαιρετικό)",
+    "contactOwner.phonePlaceholder": "Ο αριθμός τηλεφώνου σας",
+    "contactOwner.message": "Μήνυμα",
+    "contactOwner.messagePlaceholder": "Γεια σας, ενδιαφέρομαι για αυτό το ακίνητο. Θα ήθελα να μάθω περισσότερα για...",
+    "contactOwner.send": "Αποστολή Μηνύματος",
+    "contactOwner.sending": "Αποστολή...",
+    "contactOwner.sent": "Το Μήνυμα Στάλθηκε!",
+    "contactOwner.sentDesc": "Ο ιδιοκτήτης θα λάβει το μήνυμά σας και θα επικοινωνήσει μαζί σας σύντομα.",
+    "contactOwner.error": "Σφάλμα",
+    "contactOwner.fillRequired": "Παρακαλώ συμπληρώστε όλα τα υποχρεωτικά πεδία.",
+    "contactOwner.sendFailed": "Αποτυχία αποστολής μηνύματος. Δοκιμάστε ξανά.",
+    "contactOwner.privacyNote": "Τα στοιχεία επικοινωνίας σας θα κοινοποιηθούν μόνο στον ιδιοκτήτη του ακινήτου.",
   },
 };
 

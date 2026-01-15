@@ -26,7 +26,24 @@ export interface CreateListingWithSessionRequest extends CreateListingRequest {
   uploadSessionId?: string;
 }
 
+export interface PlatformStats {
+  activeListingsCount: number;
+  propertyOwnersCount: number;
+}
+
+export interface ContactOwnerRequest {
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+}
+
 export const listingsApi = {
+  async getStats(): Promise<PlatformStats> {
+    const response = await apiClient.get<PlatformStats>("/listings/stats");
+    return response.data;
+  },
+
   async getAll(params?: ListingsQueryParams): Promise<Listing[]> {
     const response = await apiClient.get<Listing[]>("/listings", { params });
     return response.data;
@@ -133,5 +150,16 @@ export const listingsApi = {
 
   async deletePendingImage(sessionId: string, imageId: number): Promise<void> {
     await apiClient.delete(`/uploads/${sessionId}/${imageId}`);
+  },
+
+  async contactOwner(
+    listingId: number,
+    data: ContactOwnerRequest
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      `/listings/${listingId}/contact`,
+      data
+    );
+    return response.data;
   },
 };

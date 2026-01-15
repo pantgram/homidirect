@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import ContactOwnerDialog from "@/components/ContactOwnerDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,6 +48,7 @@ const ListingDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -151,25 +153,43 @@ const ListingDetail = () => {
   };
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: listing?.title,
-          text: listing?.description,
-          url: window.location.href,
+          text: `${t("listingDetail.shareText")}: ${listing?.title}`,
+          url: shareUrl,
         });
       } catch (err) {
-        console.log("Share cancelled");
+        // User cancelled or share failed, fall back to clipboard
+        if ((err as Error).name !== "AbortError") {
+          await copyToClipboard(shareUrl);
+        }
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
+      await copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: t("listingDetail.linkCopied"),
+        description: t("listingDetail.linkCopiedDesc"),
+      });
+    } catch (err) {
+      toast({
+        title: t("listingDetail.shareFailed"),
+        variant: "destructive",
+      });
     }
   };
 
   const handleContactOwner = () => {
-    // For now, scroll to contact section or show contact modal
-    // In future, this could open a messaging system
-    window.location.href = `mailto:contact@homidirect.com?subject=Inquiry about: ${listing?.title}`;
+    setContactDialogOpen(true);
   };
 
   if (loading) {
@@ -596,6 +616,14 @@ const ListingDetail = () => {
       </main>
 
       <Footer />
+
+      {/* Contact Owner Dialog */}
+      <ContactOwnerDialog
+        open={contactDialogOpen}
+        onOpenChange={setContactDialogOpen}
+        listingTitle={listing.title}
+        listingId={listing.id}
+      />
     </div>
   );
 };

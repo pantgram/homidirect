@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import heroImage from "@/assets/hero-bg.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { listingsApi, PlatformStats } from "@/api/listings";
 
 const Hero = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [stats, setStats] = useState<PlatformStats>({
+    activeListingsCount: 0,
+    propertyOwnersCount: 0,
+  });
+
+  useEffect(() => {
+    listingsApi.getStats().then(setStats).catch(console.error);
+  }, []);
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -112,13 +121,17 @@ const Hero = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-6 mt-10">
             <div>
-              <div className="text-3xl font-bold text-foreground">1,200+</div>
+              <div className="text-3xl font-bold text-foreground">
+                {stats.activeListingsCount.toLocaleString()}
+              </div>
               <div className="text-sm text-muted-foreground">
                 {t("hero.activeListings")}
               </div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-foreground">500+</div>
+              <div className="text-3xl font-bold text-foreground">
+                {stats.propertyOwnersCount.toLocaleString()}
+              </div>
               <div className="text-sm text-muted-foreground">
                 {t("hero.propertyOwners")}
               </div>

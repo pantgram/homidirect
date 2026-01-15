@@ -26,6 +26,29 @@ import {
 import { ListingImageService } from "../listingImages/listingImages.service";
 
 export const ListingService = {
+  async getStats(): Promise<{
+    activeListingsCount: number;
+    propertyOwnersCount: number;
+  }> {
+    // Get active listings count
+    const listingsResult = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(listings)
+      .where(eq(listings.available, true));
+    const activeListingsCount = listingsResult[0]?.count ?? 0;
+
+    // Get distinct landlords (property owners) count
+    const ownersResult = await db
+      .select({ count: sql<number>`count(distinct ${listings.landlordId})::int` })
+      .from(listings);
+    const propertyOwnersCount = ownersResult[0]?.count ?? 0;
+
+    return {
+      activeListingsCount,
+      propertyOwnersCount,
+    };
+  },
+
   async getAllListings(): Promise<ListingResponse[]> {
     const allListings = await db
       .select({

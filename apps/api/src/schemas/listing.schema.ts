@@ -133,7 +133,24 @@ export const searchListingsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(15),
 });
 
+/**
+ * Contact owner schema
+ */
+export const contactOwnerSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must not exceed 100 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().max(20, "Phone must not exceed 20 characters").optional(),
+  message: z
+    .string()
+    .min(10, "Message must be at least 10 characters")
+    .max(2000, "Message must not exceed 2000 characters"),
+});
+
 export type ListingIdParam = z.infer<typeof listingIdParamSchema>;
 export type CreateListingInput = z.infer<typeof createListingSchema>;
 export type UpdateListingInput = z.infer<typeof updateListingSchema>;
 export type SearchListingsQuery = z.infer<typeof searchListingsSchema>;
+export type ContactOwnerInput = z.infer<typeof contactOwnerSchema>;

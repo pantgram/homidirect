@@ -2,8 +2,16 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { ListingService } from "./listings.service";
 import { CreateListingDTO, UpdateListingDTO, SearchListingsParams } from "./listings.types";
 import { NotFoundError } from "@/utils/errors";
+import { sendContactOwnerEmail } from "@/utils/email";
+import { UserService } from "../users/users.service";
+import { ContactOwnerInput } from "@/schemas/listing.schema";
 
 export const ListingController = {
+  async getStats(request: FastifyRequest, reply: FastifyReply) {
+    const stats = await ListingService.getStats();
+    return reply.code(200).send(stats);
+  },
+
   async getAll(request: FastifyRequest, reply: FastifyReply) {
     const listings = await ListingService.getAllListings();
     return reply.code(200).send({ listings: listings });
@@ -85,5 +93,39 @@ export const ListingController = {
     const { page = 1, limit = 15 } = request.query;
     const result = await ListingService.getListingsByLandlordId(userId, page, limit);
     return reply.code(200).send(result);
+  },
+
+  async contactOwner(
+    request: FastifyRequest<{ Params: { listingId: string }; Body: ContactOwnerInput }>,
+    reply: FastifyReply
+  ) {
+    const listingId = parseInt(request.params.listingId);
+    const { name, email, phone, message } = request.body;
+
+    // Get the listing to find the landlord
+    const listing = await ListingService.getListingById(listingId);
+    if (!listing) {
+      throw new NotFoundError("Listing not found");
+    }
+
+    // Get the landlord's info
+    const owner = await UserService.getUserById(listing.landlordId);
+    if (!owner) {
+      throw new NotFoundError("Property owner not found");
+    }
+
+    // Send email to the owner
+    await sendContactOwnerEmail({
+      ownerEmail: owner.email,
+      ownerName: `${owner.firstName} ${owner.lastName}`.trim(),
+      senderName: name,
+      senderEmail: email,
+      senderPhone: phone,
+      message,
+      listingTitle: listing.title,
+      listingId: listing.id,
+    });
+
+    return reply.code(200).send({ success: true, message: "Message sent successfully" });
   },
 };

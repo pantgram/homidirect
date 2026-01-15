@@ -15,9 +15,13 @@ import {
   updateListingSchema,
   listingIdParamSchema,
   searchListingsSchema,
+  contactOwnerSchema,
 } from "@/schemas/listing.schema";
 
 export async function listingRoutes(fastify: FastifyInstance) {
+  // Get platform stats - public endpoint
+  fastify.get("/stats", ListingController.getStats);
+
   // Search listings - public with auth gate for pagination limits
   // Supports: full-text search, multi-filters, geolocation, sort, pagination
   fastify.get(
@@ -108,5 +112,17 @@ export async function listingRoutes(fastify: FastifyInstance) {
       ],
     },
     ListingController.delete as any
+  );
+
+  // Contact listing owner - public endpoint (no auth required)
+  fastify.post<{ Params: { listingId: string } }>(
+    "/:listingId/contact",
+    {
+      preValidation: [
+        validateParams(listingIdParamSchema),
+        validateBody(contactOwnerSchema),
+      ],
+    },
+    ListingController.contactOwner as any
   );
 }
