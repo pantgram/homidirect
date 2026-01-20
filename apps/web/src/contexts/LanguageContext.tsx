@@ -480,6 +480,7 @@ export const translations = {
     "profile.saving": "Saving...",
     "profile.updateSuccess": "Profile updated successfully",
     "profile.updateError": "Failed to update profile. Please try again.",
+    "profile.emailExists": "Email already in use. Please use a different email.",
     "profile.deleteAccount": "Delete Account",
     "profile.deleteAccountDesc":
       "Permanently delete your account and all associated data",
@@ -1074,6 +1075,7 @@ export const translations = {
     "profile.saving": "Αποθήκευση...",
     "profile.updateSuccess": "Το προφίλ ενημερώθηκε επιτυχώς",
     "profile.updateError": "Αποτυχία ενημέρωσης προφίλ. Δοκιμάστε ξανά.",
+    "profile.emailExists": "Το email χρησιμοποιείται ήδη. Παρακαλώ χρησιμοποιήστε άλλο email.",
     "profile.deleteAccount": "Διαγραφή Λογαριασμού",
     "profile.deleteAccountDesc":
       "Διαγράψτε μόνιμα τον λογαριασμό σας και όλα τα σχετικά δεδομένα",

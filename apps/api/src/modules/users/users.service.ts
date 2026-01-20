@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, ne } from "drizzle-orm";
 import { db } from "config/db";
 import { users, NewUser } from "./users.model";
 import { UpdateUser, UserResponse, UserWithRole } from "./users.types";
+import { ConflictError } from "@/utils/errors";
 
 export const UserService = {
   async getAllUsers(): Promise<UserResponse[]> {
@@ -52,6 +53,16 @@ export const UserService = {
   },
 
   async createUser(data: NewUser): Promise<UserResponse> {
+    const [existingUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, data.email))
+      .limit(1);
+
+    if (existingUser) {
+      throw new ConflictError("Email already exists");
+    }
+
     const [newUser] = await db.insert(users).values(data).returning({
       id: users.id,
       firstName: users.firstName,
@@ -64,6 +75,18 @@ export const UserService = {
   },
 
   async updateUser(id: number, data: UpdateUser): Promise<UserWithRole | null> {
+    if (data.email) {
+      const [existingUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, data.email))
+        .limit(1);
+
+      if (existingUser && existingUser.id !== id) {
+        throw new ConflictError("Email already exists");
+      }
+    }
+
     const [updatedUser] = await db
       .update(users)
       .set({ ...data, updatedAt: new Date() })

@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usersApi } from "@/api/users";
+import { getApiError } from "@/api/client";
 import type { UserRole } from "@/api/types";
 
 const MyProfile = () => {
@@ -122,10 +123,21 @@ const MyProfile = () => {
       // Refresh page to get updated user data
       window.location.reload();
     } catch (err) {
-      toast({
-        title: t("profile.updateError"),
-        variant: "destructive",
-      });
+      const apiError = getApiError(err);
+      if (
+        apiError.statusCode === 409 ||
+        (apiError.message && apiError.message.toLowerCase().includes("email"))
+      ) {
+        toast({
+          title: t("profile.emailExists"),
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: t("profile.updateError"),
+          variant: "destructive",
+        });
+      }
       console.error("Failed to update profile:", err);
     } finally {
       setIsSaving(false);

@@ -179,7 +179,7 @@ const Favorites = () => {
                   bedrooms={listing.bedrooms}
                   bathrooms={listing.bathrooms}
                   area={formatArea(listing.area)}
-                  type={getPropertyTypeLabel(listing.propertyType)}
+                  propertyType={listing.propertyType}
                   featured={listing.isFeatured}
                   isFavorite={true}
                   onFavoriteChange={handleFavoriteChange}
