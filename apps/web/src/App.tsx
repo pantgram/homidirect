@@ -25,6 +25,8 @@ const MyListings = lazy(() => import("./pages/MyListings"));
 const MyProfile = lazy(() => import("./pages/MyProfile"));
 const EditListing = lazy(() => import("./pages/EditListing"));
 const Favorites = lazy(() => import("./pages/Favorites"));
+const Bookings = lazy(() => import("./pages/Bookings"));
+const BookingDetail = lazy(() => import("./pages/BookingDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -62,6 +64,8 @@ const App = () => (
               <Route path="/listings/:id/edit" element={<EditListing />} />
               <Route path="/profile" element={<MyProfile />} />
               <Route path="/my-favorites" element={<Favorites />} />
+              <Route path="/bookings" element={<Bookings />} />
+              <Route path="/bookings/:id" element={<BookingDetail />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -10,6 +10,7 @@ export type BookingResponse = Pick<
   | "candidateId"
   | "landlordId"
   | "listingId"
+  | "availabilitySlotId"
 >;
 
 export type CreateBookingDTO = {
@@ -18,6 +19,7 @@ export type CreateBookingDTO = {
   candidateId: number;
   landlordId: number;
   listingId: number;
+  availabilitySlotId?: number;
 };
 
 export type UpdateBookingDTO = Partial<

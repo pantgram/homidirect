@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, Upload, X, ImageIcon, ArrowLeft } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import AvailabilitySlotsManager from "@/components/AvailabilitySlotsManager";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -833,6 +834,16 @@ const EditListing = () => {
             </form>
           </CardContent>
         </Card>
+
+        {/* Availability Slots */}
+        {listing && user && (
+          <div className="max-w-3xl mx-auto mt-8">
+            <AvailabilitySlotsManager
+              listingId={listingId}
+              landlordId={user.id}
+            />
+          </div>
+        )}
       </main>
 
       <Footer />

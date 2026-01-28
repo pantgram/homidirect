@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2, User, Calendar, Shield, AlertTriangle, Home, Key, Pencil } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2, User, Calendar, Shield, AlertTriangle, Home, Key, Pencil, ArrowRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -226,6 +226,24 @@ const MyProfile = () => {
                 {t("profile.memberSince")}: {formatDate(user.createdAt)}
               </span>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Navigation */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Quick Navigation</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Link to="/bookings">
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  My Bookings
+                  <ArrowRight className="ml-auto h-4 w-4" />
+                </>
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 

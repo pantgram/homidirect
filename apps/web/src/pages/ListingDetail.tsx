@@ -18,10 +18,12 @@ import {
   Loader2,
   CheckCircle,
   Building,
+  Clock,
 } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import ContactOwnerDialog from "@/components/ContactOwnerDialog";
+import BookingDialog from "@/components/BookingDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,14 +33,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { listingsApi } from "@/api/listings";
 import { favoritesApi } from "@/api/favorites";
-import type { Listing, ListingImage, PropertyType } from "@/api/types";
+import { availabilitySlotsApi } from "@/api/availability-slots";
+import type { Listing, ListingImage, PropertyType, AvailabilitySlot } from "@/api/types";
 import placeholderImage from "@/assets/property-1.jpg";
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
 
   const [listing, setListing] = useState<Listing | null>(null);
@@ -49,6 +52,8 @@ const ListingDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<AvailabilitySlot[]>([]);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -78,6 +83,16 @@ const ListingDetail = () => {
           } catch (favErr) {
             console.error("Failed to check favorite status:", favErr);
           }
+        }
+
+        // Fetch available slots for this listing
+        try {
+          const slots = await availabilitySlotsApi.getAvailableSlotsByListingId(
+            parseInt(id)
+          );
+          setAvailableSlots(slots.slice(0, 5));
+        } catch (slotsErr) {
+          console.error("Failed to fetch availability slots:", slotsErr);
         }
       } catch (err) {
         console.error("Failed to fetch listing:", err);
@@ -190,6 +205,42 @@ const ListingDetail = () => {
 
   const handleContactOwner = () => {
     setContactDialogOpen(true);
+  };
+
+  const handleRequestViewing = () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+    setBookingDialogOpen(true);
+  };
+
+  const handleBookingSuccess = () => {
+    toast({
+      title: "Booking request sent successfully",
+    });
+  };
+
+  const formatSlotDate = (startTime: string) => {
+    const date = new Date(startTime);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return `Today at ${date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return `Tomorrow at ${date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`;
+    } else {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
   };
 
   if (loading) {
@@ -540,8 +591,13 @@ const ListingDetail = () => {
                       {t("listingDetail.contactOwner")}
                     </Button>
 
-                    <Button variant="outline" className="w-full" size="lg">
-                      <Phone className="h-4 w-4 mr-2" />
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                      onClick={handleRequestViewing}
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
                       {t("listingDetail.requestViewing")}
                     </Button>
                   </div>
@@ -591,6 +647,50 @@ const ListingDetail = () => {
                 </CardContent>
               </Card>
 
+              {/* Available Slots */}
+              {availableSlots.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold mb-4 flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Available Viewing Times
+                    </h3>
+                    <div className="space-y-2">
+                      {availableSlots.slice(0, 3).map((slot) => (
+                        <div
+                          key={slot.id}
+                          className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <span className="text-sm">
+                              {formatSlotDate(slot.startTime)}
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={handleRequestViewing}
+                          >
+                            Book
+                          </Button>
+                        </div>
+                      ))}
+                      {availableSlots.length > 3 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                          onClick={handleRequestViewing}
+                        >
+                          View all {availableSlots.length} available slots
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Safety Notice */}
               <Card className="bg-muted/50">
                 <CardContent className="p-4">
@@ -624,6 +724,19 @@ const ListingDetail = () => {
         listingTitle={listing.title}
         listingId={listing.id}
       />
+
+      {/* Booking Dialog */}
+      {user && (
+        <BookingDialog
+          open={bookingDialogOpen}
+          onOpenChange={setBookingDialogOpen}
+          listingId={listing.id}
+          listingTitle={listing.title}
+          landlordId={listing.landlordId}
+          candidateId={user.id}
+          onSuccess={handleBookingSuccess}
+        />
+      )}
     </div>
   );
 };

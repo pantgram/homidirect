@@ -13,6 +13,7 @@ import {
   adminVerificationRoutes,
 } from "../verificationDocuments/verificationDocuments.routes";
 import { favoritesRoutes } from "../favorites/favorites.routes";
+import { availabilitySlotRoutes } from "../availabilitySlots/availabilitySlots.routes";
 
 export async function apiRoutes(fastify: FastifyInstance) {
   // all auth routes will be under /api/auth
@@ -43,4 +44,8 @@ export async function apiRoutes(fastify: FastifyInstance) {
   fastify.register(adminVerificationRoutes, { prefix: "/admin/verifications" });
 
   // favorites routes under /api/favorites
+  fastify.register(favoritesRoutes, { prefix: "/favorites" });
+
+  // availability slot routes under /api/availability-slots
+  fastify.register(availabilitySlotRoutes, { prefix: "/availability-slots" });
 }
