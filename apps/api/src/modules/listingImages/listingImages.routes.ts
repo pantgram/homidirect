@@ -28,7 +28,7 @@ export async function listingImageRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(listingImageParamsSchema),
         verifyListingOwnership,
       ],
@@ -42,7 +42,7 @@ export async function listingImageRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(deleteImageParamsSchema),
         verifyListingOwnership,
       ],
@@ -58,7 +58,7 @@ export async function pendingImageRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(sessionParamsSchema),
       ],
     },
@@ -72,7 +72,7 @@ export async function pendingImageRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(sessionParamsSchema),
       ],
     },
@@ -85,7 +85,7 @@ export async function pendingImageRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(deletePendingImageParamsSchema),
       ],
     },

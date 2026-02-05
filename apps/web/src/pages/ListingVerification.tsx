@@ -15,7 +15,8 @@ export default function ListingVerification() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const listingIdNum = listingId ? parseInt(listingId, 10) : 0;
-  const { data: listing, isLoading: isListingLoading } = useListing(listingIdNum);
+  const { data: listing, isLoading: isListingLoading } =
+    useListing(listingIdNum);
 
   // Check authentication
   if (!isAuthLoading && !isAuthenticated) {
@@ -40,7 +41,12 @@ export default function ListingVerification() {
   }
 
   // Check if user is a landlord
-  if (!isAuthLoading && user?.role !== "LANDLORD" && user?.role !== "ADMIN") {
+  if (
+    !isAuthLoading &&
+    user?.role !== "LANDLORD" &&
+    user?.role !== "BOTH" &&
+    user?.role !== "ADMIN"
+  ) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navigation />
@@ -119,7 +125,8 @@ export default function ListingVerification() {
                   Property Verification
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Verify your property ownership to build trust with potential tenants
+                  Verify your property ownership to build trust with potential
+                  tenants
                 </p>
               </div>
             </div>
@@ -137,7 +144,10 @@ export default function ListingVerification() {
           </div>
 
           {/* Verification Upload Component */}
-          <VerificationUpload listingId={listingIdNum} listingTitle={listing.title} />
+          <VerificationUpload
+            listingId={listingIdNum}
+            listingTitle={listing.title}
+          />
         </div>
       </main>
 

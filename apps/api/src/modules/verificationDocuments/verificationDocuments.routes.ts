@@ -54,7 +54,7 @@ export async function verificationDocumentRoutes(fastify: FastifyInstance) {
     {
       preValidation: [
         fastify.authenticate,
-        requireRole("LANDLORD"),
+        requireRole("LANDLORD", "BOTH"),
         validateParams(verificationDocumentParamsSchema),
         verifyListingOwnership,
       ],
