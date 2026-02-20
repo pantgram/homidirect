@@ -64,7 +64,7 @@ export function buildApp() {
   });
 
   // Register routes
-  fastify.register(apiRoutes, { prefix: "/api" });
+  fastify.register(apiRoutes, { prefix: "/api/v1" });
 
   return fastify;
 }

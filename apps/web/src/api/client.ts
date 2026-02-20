@@ -5,7 +5,7 @@ const TOKEN_KEY = "auth_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
 export const apiClient = axios.create({
-  baseURL: `${env.apiUrl}/api`,
+  baseURL: `${env.apiUrl}/api/v1`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -33,7 +33,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor - handle token refresh
@@ -65,7 +65,11 @@ apiClient.interceptors.response.use(
     const isAuthEndpoint = originalRequest.url?.startsWith("/auth/");
 
     // Handle 401 errors (unauthorized) - but not for auth endpoints
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -108,7 +112,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // API error type
