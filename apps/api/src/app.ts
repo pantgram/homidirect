@@ -8,6 +8,7 @@ import { apiRoutes } from "./modules/index";
 import jwtPlugin from "./plugins/jwt";
 import { errorHandler } from "./middleware/errorHandler";
 import { MAX_FILE_SIZE } from "./modules/listingImages/listingImages.types";
+import { MAX_DOCUMENT_SIZE } from "./modules/verificationDocuments/verificationDocuments.types";
 
 export function buildApp() {
   const fastify = Fastify({
@@ -26,13 +27,14 @@ export function buildApp() {
   fastify.register(helmet);
 
   // Register multipart for file uploads
-  // Use default options to avoid interfering with DELETE requests
+  // Configure to parse only multipart/form-data content types
   fastify.register(multipart, {
     limits: {
-      fileSize: MAX_FILE_SIZE,
+      fileSize: Math.max(MAX_FILE_SIZE, MAX_DOCUMENT_SIZE),
+      fields: 20,
+      files: 10,
     },
     attachFieldsToBody: false,
-    // Only parse multipart for specific content types
     throwFileSizeLimit: false,
   });
 

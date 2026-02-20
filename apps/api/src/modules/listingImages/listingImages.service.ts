@@ -261,4 +261,21 @@ export const ListingImageService = {
 
     return expiredImages.length;
   },
+
+  async deleteImagesByListingId(listingId: number): Promise<number> {
+    const images = await this.getImagesByListingId(listingId);
+
+    for (const image of images) {
+      const key = getKeyFromUrl(image.url);
+      await deleteFromR2(key);
+    }
+
+    if (images.length > 0) {
+      await db
+        .delete(listingImages)
+        .where(eq(listingImages.listingId, listingId));
+    }
+
+    return images.length;
+  },
 };

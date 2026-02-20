@@ -72,7 +72,7 @@ const MyListings = () => {
         setLoading(false);
       }
     },
-    [canAccess, t]
+    [canAccess, t],
   );
 
   useEffect(() => {
@@ -271,7 +271,7 @@ const MyListings = () => {
                     </Badge>
                   </div>
                   {/* Action buttons */}
-                  <div className="absolute bottom-20 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute bottom-4 right-4 flex gap-2 transition-opacity z-10">
                     <Button
                       size="sm"
                       variant="secondary"
@@ -324,7 +324,7 @@ const MyListings = () => {
                         {pageNum}
                       </Button>
                     );
-                  }
+                  },
                 )}
                 <Button
                   variant="outline"

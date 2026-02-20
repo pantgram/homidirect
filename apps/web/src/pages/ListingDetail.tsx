@@ -34,7 +34,12 @@ import { useToast } from "@/hooks/use-toast";
 import { listingsApi } from "@/api/listings";
 import { favoritesApi } from "@/api/favorites";
 import { availabilitySlotsApi } from "@/api/availability-slots";
-import type { Listing, ListingImage, PropertyType, AvailabilitySlot } from "@/api/types";
+import type {
+  Listing,
+  ListingImage,
+  PropertyType,
+  AvailabilitySlot,
+} from "@/api/types";
 import placeholderImage from "@/assets/property-1.jpg";
 
 const ListingDetail = () => {
@@ -88,7 +93,7 @@ const ListingDetail = () => {
         // Fetch available slots for this listing
         try {
           const slots = await availabilitySlotsApi.getAvailableSlotsByListingId(
-            parseInt(id)
+            parseInt(id),
           );
           setAvailableSlots(slots.slice(0, 5));
         } catch (slotsErr) {
@@ -115,7 +120,10 @@ const ListingDetail = () => {
 
     setFavoriteLoading(true);
     try {
-      const newFavoriteState = await favoritesApi.toggleFavorite(parseInt(id), isFavorite);
+      const newFavoriteState = await favoritesApi.toggleFavorite(
+        parseInt(id),
+        isFavorite,
+      );
       setIsFavorite(newFavoriteState);
       toast({
         title: newFavoriteState ? t("favorites.added") : t("favorites.removed"),
@@ -155,16 +163,12 @@ const ListingDetail = () => {
 
   const handlePrevImage = () => {
     const totalImages = images.length > 0 ? images.length : 1;
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? totalImages - 1 : prev - 1
-    );
+    setCurrentImageIndex((prev) => (prev === 0 ? totalImages - 1 : prev - 1));
   };
 
   const handleNextImage = () => {
     const totalImages = images.length > 0 ? images.length : 1;
-    setCurrentImageIndex((prev) =>
-      prev === totalImages - 1 ? 0 : prev + 1
-    );
+    setCurrentImageIndex((prev) => (prev === totalImages - 1 ? 0 : prev + 1));
   };
 
   const handleShare = async () => {
@@ -225,7 +229,7 @@ const ListingDetail = () => {
     const date = new Date(startTime);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -276,7 +280,19 @@ const ListingDetail = () => {
     );
   }
 
-  const displayImages = images.length > 0 ? images : [{ id: 0, listingId: listing.id, url: placeholderImage, isPrimary: true, order: 0, createdAt: "" }];
+  const displayImages =
+    images.length > 0
+      ? images
+      : [
+          {
+            id: 0,
+            listingId: listing.id,
+            url: placeholderImage,
+            isPrimary: true,
+            order: 0,
+            createdAt: "",
+          },
+        ];
   const currentImage = displayImages[currentImageIndex];
 
   return (
@@ -551,7 +567,8 @@ const ListingDetail = () => {
                           {t("listingDetail.pricePerRoom")}
                         </p>
                         <p className="font-medium">
-                          €{formatPrice(listing.pricePerRoom)}/{t("listingDetail.month")}
+                          €{formatPrice(listing.pricePerRoom)}/
+                          {t("listingDetail.month")}
                         </p>
                       </div>
                     </div>
@@ -565,48 +582,79 @@ const ListingDetail = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
               {/* Price Card */}
-              <Card className="border-2 border-primary/20">
-                <CardContent className="p-6">
-                  <div className="text-center mb-6">
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {t("listingDetail.monthlyRent")}
-                    </p>
-                    <div className="text-4xl font-bold text-primary">
-                      €{formatPrice(listing.price)}
+              {!user || user.id !== listing.landlordId ? (
+                <Card className="border-2 border-primary/20">
+                  <CardContent className="p-6">
+                    <div className="text-center mb-6">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {t("listingDetail.monthlyRent")}
+                      </p>
+                      <div className="text-4xl font-bold text-primary">
+                        €{formatPrice(listing.price)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t("propertyCard.perMonth")}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {t("propertyCard.perMonth")}
+
+                    <Separator className="mb-6" />
+
+                    <div className="space-y-4">
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        onClick={handleContactOwner}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        {t("listingDetail.contactOwner")}
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                        onClick={handleRequestViewing}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {t("listingDetail.requestViewing")}
+                      </Button>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground text-center mt-4">
+                      {t("listingDetail.directContact")}
                     </p>
-                  </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="border-2 border-primary/20">
+                  <CardContent className="p-6">
+                    <div className="text-center mb-6">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {t("listingDetail.monthlyRent")}
+                      </p>
+                      <div className="text-4xl font-bold text-primary">
+                        €{formatPrice(listing.price)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t("propertyCard.perMonth")}
+                      </p>
+                    </div>
 
-                  <Separator className="mb-6" />
+                    <Separator className="mb-6" />
 
-                  <div className="space-y-4">
-                    <Button
-                      className="w-full"
-                      size="lg"
-                      onClick={handleContactOwner}
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      {t("listingDetail.contactOwner")}
-                    </Button>
+                    <Link to={`/listing/${listing.id}/bookings`}>
+                      <Button className="w-full" size="lg">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Manage Bookings
+                      </Button>
+                    </Link>
 
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      size="lg"
-                      onClick={handleRequestViewing}
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {t("listingDetail.requestViewing")}
-                    </Button>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground text-center mt-4">
-                    {t("listingDetail.directContact")}
-                  </p>
-                </CardContent>
-              </Card>
+                    <p className="text-xs text-muted-foreground text-center mt-4">
+                      Accept, decline, and manage viewing requests
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Quick Stats */}
               <Card>
@@ -702,16 +750,6 @@ const ListingDetail = () => {
               </Card>
             </div>
           </div>
-        </div>
-
-        {/* Back to Search */}
-        <div className="mt-12 text-center">
-          <Link to="/search">
-            <Button variant="outline" size="lg">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("listingDetail.backToSearch")}
-            </Button>
-          </Link>
         </div>
       </main>
 

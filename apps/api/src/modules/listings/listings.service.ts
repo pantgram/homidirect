@@ -39,7 +39,9 @@ export const ListingService = {
 
     // Get distinct landlords (property owners) count
     const ownersResult = await db
-      .select({ count: sql<number>`count(distinct ${listings.landlordId})::int` })
+      .select({
+        count: sql<number>`count(distinct ${listings.landlordId})::int`,
+      })
       .from(listings);
     const propertyOwnersCount = ownersResult[0]?.count ?? 0;
 
@@ -95,7 +97,7 @@ export const ListingService = {
 
   async createListing(
     data: CreateListingDTO,
-    uploadSessionId?: string
+    uploadSessionId?: string,
   ): Promise<ListingResponse> {
     const [newListing] = await db.insert(listings).values(data).returning({
       id: listings.id,
@@ -113,9 +115,13 @@ export const ListingService = {
     });
 
     if (uploadSessionId) {
+      console.log(
+        "entered create listing with upload session id",
+        uploadSessionId,
+      );
       await ListingImageService.associateImagesToListing(
         uploadSessionId,
-        newListing.id
+        newListing.id,
       );
     }
 
@@ -124,7 +130,7 @@ export const ListingService = {
 
   async updateListing(
     id: number,
-    data: UpdateListingDTO
+    data: UpdateListingDTO,
   ): Promise<ListingResponse | null> {
     const [updatedListing] = await db
       .update(listings)
@@ -149,6 +155,12 @@ export const ListingService = {
   },
 
   async deleteListing(id: number): Promise<boolean> {
+    try {
+      await ListingImageService.deleteImagesByListingId(id);
+    } catch (error) {
+      console.error('Failed to delete images from R2 for listing:', id, error);
+    }
+
     const result = await db
       .delete(listings)
       .where(eq(listings.id, id))
@@ -159,7 +171,7 @@ export const ListingService = {
 
   async searchListings(
     params: SearchListingsParams,
-    isAuthenticated: boolean = false
+    isAuthenticated: boolean = false,
   ): Promise<PaginatedResponse<ListingSearchResponse>> {
     const {
       q,
@@ -200,8 +212,8 @@ export const ListingService = {
           ilike(listings.title, searchTerm),
           ilike(listings.description, searchTerm),
           ilike(listings.titleEl, searchTerm),
-          ilike(listings.descriptionEl, searchTerm)
-        )!
+          ilike(listings.descriptionEl, searchTerm),
+        )!,
       );
     }
 
@@ -279,8 +291,8 @@ export const ListingService = {
         orderBy.push(desc(listings.isFeatured));
         orderBy.push(
           desc(
-            sql`CASE WHEN ${listings.featuredUntil} > NOW() THEN 1 ELSE 0 END`
-          )
+            sql`CASE WHEN ${listings.featuredUntil} > NOW() THEN 1 ELSE 0 END`,
+          ),
         );
         orderBy.push(desc(listings.createdAt));
         break;
@@ -345,10 +357,12 @@ export const ListingService = {
     const primaryImagesMap = await this.getPrimaryImagesForListings(listingIds);
 
     // Attach primary images to results
-    const resultsWithImages: ListingSearchResponse[] = results.map((listing) => ({
-      ...listing,
-      primaryImage: primaryImagesMap.get(listing.id) || null,
-    }));
+    const resultsWithImages: ListingSearchResponse[] = results.map(
+      (listing) => ({
+        ...listing,
+        primaryImage: primaryImagesMap.get(listing.id) || null,
+      }),
+    );
 
     const totalPages = Math.ceil(total / limit);
 
@@ -376,7 +390,7 @@ export const ListingService = {
   },
 
   async getPrimaryImagesForListings(
-    listingIds: number[]
+    listingIds: number[],
   ): Promise<Map<number, ListingImageBasic>> {
     if (listingIds.length === 0) {
       return new Map();
@@ -407,7 +421,7 @@ export const ListingService = {
   async getListingsByLandlordId(
     landlordId: number,
     page: number = 1,
-    limit: number = 15
+    limit: number = 15,
   ): Promise<PaginatedResponse<ListingSearchResponse>> {
     const offset = (page - 1) * limit;
 
@@ -449,10 +463,12 @@ export const ListingService = {
     const primaryImagesMap = await this.getPrimaryImagesForListings(listingIds);
 
     // Attach primary images to results
-    const resultsWithImages: ListingSearchResponse[] = results.map((listing) => ({
-      ...listing,
-      primaryImage: primaryImagesMap.get(listing.id) || null,
-    }));
+    const resultsWithImages: ListingSearchResponse[] = results.map(
+      (listing) => ({
+        ...listing,
+        primaryImage: primaryImagesMap.get(listing.id) || null,
+      }),
+    );
 
     const totalPages = Math.ceil(total / limit);
 

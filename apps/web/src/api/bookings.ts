@@ -16,6 +16,11 @@ export const bookingsApi = {
     return response.data.booking;
   },
 
+  async getByListingId(listingId: number): Promise<Booking[]> {
+    const response = await apiClient.get<{ bookings: Booking[] }>(`/bookings/listing/${listingId}`);
+    return response.data.bookings;
+  },
+
   async create(data: CreateBookingRequest): Promise<Booking> {
     const response = await apiClient.post<{ booking: Booking }>("/bookings", data);
     return response.data.booking;

@@ -1,7 +1,12 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "./auth.service";
 import { NewUser } from "../users/users.model";
-import { LoginInput, RefreshInput, ForgotPasswordInput, ResetPasswordInput } from "./auth.types";
+import {
+  LoginInput,
+  RefreshInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "./auth.types";
 import {
   ConflictError,
   UnauthorizedError,
@@ -27,6 +32,7 @@ export const AuthController = {
     try {
       const token = await AuthService.login(req.body, req.server);
       return reply.send({ token });
+      33;
     } catch (err: any) {
       req.log.error(err);
       if (err.message === "No account found with this email address") {
@@ -41,7 +47,7 @@ export const AuthController = {
 
   async refresh(
     req: FastifyRequest<{ Body: RefreshInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     try {
       const tokens = await AuthService.refresh(req.body, req.server);
@@ -54,7 +60,7 @@ export const AuthController = {
 
   async forgotPassword(
     req: FastifyRequest<{ Body: ForgotPasswordInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     try {
       const result = await AuthService.forgotPassword(req.body);
@@ -67,7 +73,7 @@ export const AuthController = {
 
   async resetPassword(
     req: FastifyRequest<{ Body: ResetPasswordInput }>,
-    reply: FastifyReply
+    reply: FastifyReply,
   ) {
     try {
       const result = await AuthService.resetPassword(req.body);
